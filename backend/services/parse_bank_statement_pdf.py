@@ -2,24 +2,38 @@ from pypdf import PdfReader
 from datetime import datetime
 import re
 import json
+import os
 
 class PdfParser:
     def __init__(self):
-        config = self.get_config()
-        categories = self.get_categories(config)
-        input_file_path = self.get_input_file_path(config)
-        items = self.extract_text(self, config, input_file_path)
-        json_list = self.create_json(self, categories, items)
-        self.write_to_file(config, input_file_path, json_list)
+        dir = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(dir)
+        self.config = self.get_config()
+        self.categories = self.get_categories(self.config)
+        print('PdfParser initialized')
 
-    def get_config():
+    def parse_pdf(self, file):
+        filename = self.create_temp_file(file)
+        items = self.extract_text(self.config, filename)
+        json_list = self.create_json(self.categories, items)
+        self.delete_temp_file(file)
+        return json_list
+
+    def create_temp_file(self, file):
+        contents = file.file.read()
+        with open(file.filename, 'wb') as file_object:
+            file_object.write(contents)
+
+        return file.filename
+
+    def get_config(self):
         # config.json contains file paths and key words, see config_template
         with open('config.json', 'r', encoding = 'utf-8') as file:
             config = json.load(file)
 
         return config
 
-    def get_categories(config):
+    def get_categories(self, config):
         # categories.json contains mapping of keywords to categories, see categories_template
         categories_file_path = config[0]['categories']['file_path'] + '\\' + config[0]['categories']['file_name']
         
@@ -27,12 +41,6 @@ class PdfParser:
             categories = json.load(file)
         
         return categories
-
-    def get_input_file_path(config):
-        input_file_name = config[0]['input']['file_name']
-        input_file_path = config[0]['input']['file_path'] + '\\' + input_file_name
-        
-        return input_file_path
 
     def extract_text(self, config, input_file_path):
         reader = PdfReader(input_file_path)
@@ -58,7 +66,7 @@ class PdfParser:
 
         return items
 
-    def get_relevant_content(text, begin_key_word, end_key_word):
+    def get_relevant_content(self, text, begin_key_word, end_key_word):
         beginning = text.find(begin_key_word)
         end = text.find(end_key_word)
         
@@ -113,7 +121,7 @@ class PdfParser:
             print('All categories found for', len(json_list), 'items')
         return json_list
 
-    def get_category(purpose, categories, category_not_found):
+    def get_category(self, purpose, categories, category_not_found):
         for i in categories:
             if any(keywords.lower() in purpose.lower() for keywords in i['mapping']):
                 category = i['sub_category']
@@ -125,19 +133,7 @@ class PdfParser:
             category_not_found += 1
 
         return category, category_not_found
-
-    def write_to_file(config, input_file_path, json_list):
-        # Extract current year and month and write to file
-        key_word = config[0]['input']['key_word']
-        pattern = '(?:' + key_word + r'-)(\d{2}\-\d{2})' 
-        match = re.search(pattern, input_file_path)
-        if match:
-            output_file_name = match.group(1) + '-output-' + key_word + '.json'
-        else:
-            output_file_name = 'failed_naming_output.json'
-
-        output_file_path = config[0]['output']['file_path'] + '\\' + output_file_name
-        with open(output_file_path, 'w') as file:
-            json.dump(json_list, file, indent = 4)
-
-        print('Output file created @', output_file_path)
+    
+    def delete_temp_file(self, file):
+        os.remove(file.filename)
+        print('Temp file deleted')

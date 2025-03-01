@@ -21,6 +21,7 @@ class Items(BaseModel):
 app = FastAPI()
 
 add_numbers = AddNumbers(10)
+pdf_parser = PdfParser()
 
 origins = [
     "http://localhost:3000"
@@ -45,15 +46,14 @@ def add_item(item: Item, response_model=Item):
     memory_db['items'].append(item)
     return item
 
-@app.post("/parse-pdf")
-async def parse_pdf(): #file: UploadFile = File(...)
-    #contents = await file.read()
-    #with open("temp.pdf", "wb") as f:
-    #    f.write(contents)
-
-    result = PdfParser #.parse("temp.pdf")
-    
-    return {"result": result}
+@app.post("/parse/parse-pdf")
+async def parse_pdf(file: UploadFile = File(...)):
+    try:
+        result = pdf_parser.parse_pdf(file)
+        return result
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to query data")
 
 @app.get("/addNumbers")
 async def addNumbers():
