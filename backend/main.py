@@ -4,11 +4,12 @@ import uvicorn
 from typing import List
 from pydantic import BaseModel
 
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import JSONResponse
 
 from services.parse_bank_statement_pdf import PdfParser
-from services.test_py import Test
+from services.test_py import AddNumbers
 
 
 class Item(BaseModel):
@@ -18,6 +19,8 @@ class Items(BaseModel):
     items: List[Item]
 
 app = FastAPI()
+
+add_numbers = AddNumbers(10)
 
 origins = [
     "http://localhost:3000"
@@ -52,10 +55,16 @@ async def parse_pdf(): #file: UploadFile = File(...)
     
     return {"result": result}
 
-@app.get("/test")
-async def test():
-    result = Test()
-    return result
+@app.get("/addNumbers")
+async def addNumbers():
+    try:
+        result = add_numbers.add_two_integers(15)
+        print(result)
+        return JSONResponse(content={"result": result})
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to query data")
+
 
 # rework
 if(__name__ == "__init__"):

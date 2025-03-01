@@ -1,8 +1,7 @@
-class Test:
-    def __init__(self):
-        variable = self.this_is_a_function()
-        print(variable)
+class AddNumbers():
 
-    def this_is_a_function(variable):
-        variable = 'This is a test'
-        return variable
+    def __init__(self, first_int):
+        self.first_int = first_int
+
+    def add_two_integers(self, second_int):
+        return self.first_int + second_int

@@ -7,12 +7,10 @@ export default function TestApi({}) {
     
     const testFunctionForPython = async () => {
     try {
-      const res = await api.get(
-        '/test', {
-        method: 'GET',
-      });
-      console.log('TestApi.js', res, res.data);
-      setResponse(res.data);
+      const backendUrl = "http://localhost:8000"; // process.env.BACKEND_URL; // `${process.env.BACKEND_URL}/test`
+      var result = await fetch(backendUrl + '/addNumbers');
+      const data = await result.json();
+      setResponse(data.result);
     } catch (error) {
       console.error("Error testing", error);
     }    
