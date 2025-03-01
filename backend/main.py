@@ -7,8 +7,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File
 
-import parse_bank_statement_pdf
-import test_py
+from services.parse_bank_statement_pdf import PdfParser
+from services.test_py import Test
 
 
 class Item(BaseModel):
@@ -48,15 +48,15 @@ async def parse_pdf(): #file: UploadFile = File(...)
     #with open("temp.pdf", "wb") as f:
     #    f.write(contents)
 
-    result = parse_bank_statement_pdf #.parse("temp.pdf")
+    result = PdfParser #.parse("temp.pdf")
     
     return {"result": result}
 
 @app.get("/test")
 async def test():
-    result = test_py.init()
+    result = Test()
     return result
 
-
+# rework
 if(__name__ == "__init__"):
     uvicorn.run(app, host="0.0.0.0", port=8000)
