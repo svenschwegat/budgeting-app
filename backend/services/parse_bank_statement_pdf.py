@@ -81,6 +81,7 @@ class PdfParser:
 
     def create_json(self, categories, items):
         category_not_found = 0
+        key = 0
         json_list = []
         name = 'Kartenumsatz'
         for item in items:
@@ -100,16 +101,18 @@ class PdfParser:
                 purpose_amount_match = re.search(purpose_amount_pattern, item, re.DOTALL)
 
                 if purpose_amount_match:
+                    key += 1
                     purpose = purpose_amount_match.group(1).strip()
                     amount = float(purpose_amount_match.group(3).replace('.', '').replace(',', '.'))
                     category, category_not_found = self.get_category(purpose, categories, category_not_found)
-
+                    
                     json_item = {
-                        "date": date,
-                        "name": name,
-                        "purpose": purpose,
-                        "amount": amount,
-                        "category": category
+                        'key': key,
+                        'date': date,
+                        'name': name,
+                        'purpose': purpose,
+                        'amount': amount,
+                        'category': category
                     }
                     json_list.append(json_item)
                 else:

@@ -13,7 +13,11 @@ from services.test_py import AddNumbers
 
 
 class Item(BaseModel):
+    key: int
+    date: str
     name: str
+    purpose: str
+    amount: float
 
 class Items(BaseModel):
     items: List[Item]
@@ -35,21 +39,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-memory_db = {"items": []}
+memory_db = {"uploaded_items": []}
+print("Memory DB initialized", memory_db)
 
-@app.get("/items", response_model=Items)
+@app.get("/parse/get-uploaded-items", response_model=Items)
 def get_items():
-    return Items(items=memory_db["items"])
-
-@app.post("/items")
-def add_item(item: Item, response_model=Item):
-    memory_db['items'].append(item)
-    return item
+    return Items(items=memory_db["uploaded_items"])
 
 @app.post("/parse/parse-pdf")
 async def parse_pdf(file: UploadFile = File(...)):
     try:
         result = pdf_parser.parse_pdf(file)
+        memory_db["uploaded_items"] = result
         return result
     except Exception as e:
         print(e)

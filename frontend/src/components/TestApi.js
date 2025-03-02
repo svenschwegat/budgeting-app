@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import api from '../api';
 
 export default function TestApi({}) {
     const [response, setResponse] = useState(null);
