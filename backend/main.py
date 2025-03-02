@@ -9,8 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from services.parse_bank_statement_pdf import PdfParser
+from services.select_from_database import DatabaseSelector
 from services.test_py import AddNumbers
 
+class SqlStatement(BaseModel):
+    sqlStatement: str
 
 class Item(BaseModel):
     key: int
@@ -26,6 +29,7 @@ app = FastAPI()
 
 add_numbers = AddNumbers(10)
 pdf_parser = PdfParser()
+db_selector = DatabaseSelector()
 
 origins = [
     "http://localhost:3000"
@@ -40,7 +44,16 @@ app.add_middleware(
 )
 
 memory_db = {"uploaded_items": []}
-print("Memory DB initialized", memory_db)
+
+@app.post("/fetch-from-db")
+async def fetch_from_db(data: SqlStatement):
+    try:
+        print('main', data.sqlStatement)
+        result = db_selector.select_from_table(data.sqlStatement)
+        return result
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to query data")
 
 @app.get("/parse/get-uploaded-items", response_model=Items)
 def get_items():
