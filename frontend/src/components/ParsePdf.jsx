@@ -33,10 +33,10 @@ export default function ParsePdf({}) {
             <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
                 <Input type="file" color="secondary" onChange={handleFileChange} />
                 <div style={{ marginBottom: '20px' }}></div>
-                <Button color="secondary" onPress={handleFileParse}
-                >
+                <Button color="secondary" onPress={handleFileParse}>
                 Parse bank statement PDF
                 </Button>
+                <div style={{ marginBottom: '20px' }}></div>
                 {result && <InputTable data={result} />}
             </main>
         </div>

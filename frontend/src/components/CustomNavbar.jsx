@@ -19,13 +19,14 @@ export default function CustomNavbar({activePage}) {
   };
   
   return (
-    <Navbar isBordered isBlurred={false}>
+    <Navbar isBordered isBlurred={false} maxWidth="lg">
       <NavbarBrand>
         <Logo />
         <Link className="font-bold text-inherit" href="/dashboard">
           Meen Budget
         </Link>
       </NavbarBrand>
+      <div className="flex-grow" />
       <NavbarContent className="sm:flex gap-4" justify="center">
         <NavbarItem isActive={setIsActive('dashboard')}>
           <Link color="foreground" href="/dashboard">

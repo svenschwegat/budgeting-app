@@ -57,6 +57,7 @@ async def fetch_from_db(data: SqlStatement):
 
 @app.get("/parse/get-uploaded-items", response_model=Items)
 def get_items():
+    print('Upload Items', memory_db["uploaded_items"])
     return Items(items=memory_db["uploaded_items"])
 
 @app.post("/parse/parse-pdf")
