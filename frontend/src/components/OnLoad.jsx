@@ -1,4 +1,5 @@
 'use client'
+
 export default async function OnLoad() {
     try {
         const backendUrl = "http://localhost:8000";
@@ -7,5 +8,6 @@ export default async function OnLoad() {
         return data;
     } catch (error) {
         console.error("Error getting uploaded items", error);
+        return null;
     }
 }

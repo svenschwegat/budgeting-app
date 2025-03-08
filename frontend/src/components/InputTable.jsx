@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, getKeyValue } from "@heroui/react";
 
 const columns = [
-    { key: "date", label: "Date" },
-    { key: "name", label: "Name" },
-    { key: "purpose", label: "Purpose" },
-    { key: "amount", label: "Amount" },
-    { key: "category", label: "Category" },
+    { key: "date", label: "Date", editable: false },
+    { key: "name", label: "Name", editable: false },
+    { key: "purpose", label: "Purpose", editable: false },
+    { key: "amount", label: "Amount", editable: false },
+    { key: "category", label: "Category", editable: true },
 ];
 
 export const emptyTable = () => {

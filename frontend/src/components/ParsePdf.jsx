@@ -21,7 +21,6 @@ export default function ParsePdf({}) {
                 body: formData,
             });
             const data = await response.json();
-            console.log('parse-pdf',result, data);
             setResult(data);
         } catch (error) {
             console.error("Error adding parsing pdf", error);

@@ -15,12 +15,20 @@ from services.test_py import AddNumbers
 class SqlStatement(BaseModel):
     sqlStatement: str
 
+class Categories(BaseModel):
+    id: int
+    type: str
+    main_category: str
+    sub_category: str
+    mapping: str
+
 class Item(BaseModel):
     key: int
     date: str
     name: str
     purpose: str
     amount: float
+    category: str
 
 class Items(BaseModel):
     items: List[Item]
@@ -43,7 +51,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-memory_db = {"uploaded_items": []}
+memory_db = {
+    "uploaded_items": [],
+    "categories": []
+}
 
 @app.post("/fetch-from-db")
 async def fetch_from_db(data: SqlStatement):
@@ -55,9 +66,18 @@ async def fetch_from_db(data: SqlStatement):
         print(e)
         raise HTTPException(status_code=500, detail="Failed to query data")
 
+@app.post("/get-categories", response_model=Categories)
+def get_categories():
+    result = fetch_from_db('SELECT * FROM categories')
+    memory_db["categories"] = result
+    return result
+
+@app.get("/get-categories-quick", response_model=Categories)
+def get_categories_quick():
+    return Categories(items=memory_db["categories"])
+
 @app.get("/parse/get-uploaded-items", response_model=Items)
 def get_items():
-    print('Upload Items', memory_db["uploaded_items"])
     return Items(items=memory_db["uploaded_items"])
 
 @app.post("/parse/parse-pdf")
