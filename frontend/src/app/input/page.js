@@ -4,21 +4,30 @@ import ParsePdf from '@/components/ParsePdf';
 import InputTable from '@/components/InputTable';
 import OnLoad from '@/components/OnLoad';
 import CustomNavbar from '@/components/CustomNavbar';
+import { getCategories } from '@/components/FetchFromDb';
 
-export default function Home({ }) {
+export default function Upload({ }) {
   const [data, setData] = useState([]);
+  const [tableCategories, setTableCategories] = useState([]);
   
   useEffect(() => {
     async function fetchData() {
       const result = await OnLoad();
-      console.log('page result', result);
       if (result) {
         setData(result.items);
       }
     }
     fetchData();
   }, []);
-  
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const categories = await getCategories();
+      setTableCategories(categories);
+    }
+    fetchCategories();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <CustomNavbar activePage={'input'}/>
@@ -30,7 +39,7 @@ export default function Home({ }) {
         </div>
         {data.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
-            <InputTable data={data} />
+            <InputTable data={data} categories={tableCategories} />
           </div>)}
         </main>
         </div>
