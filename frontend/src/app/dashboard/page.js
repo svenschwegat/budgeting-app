@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import CustomNavbar from '@/components/CustomNavbar';
 import {Button, Input} from "@heroui/react";
-import InputTable from '@/components/InputTable';
+import fetchFromDb from '@/components/FetchFromDb';
 
-export default function Home() {
+export default function Dashboard() {
   const [sqlStatement, setSqlStatement] = useState('');
   const [result, setResult] = useState([]);
   
@@ -12,22 +12,9 @@ export default function Home() {
     setSqlStatement(event.target.value);
   }
 
-  const fetchFromDb = async () => {
-    const backendUrl = "http://localhost:8000";
-    try {
-        const response = await fetch(backendUrl + '/fetch-from-db', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ sqlStatement: sqlStatement })
-        });
-        const data = await response.json();
-        setResult(data);
-        console.log('data', data);
-    } catch (error) {
-        console.error("Error select statement", error);
-    }    
+  const fetchAnyFromDb = async () => {
+    const data = await fetchFromDb(sqlStatement);
+    setResult(data);
   };
   
   return (
@@ -37,7 +24,7 @@ export default function Home() {
         <h1>Dashboard</h1>
         <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
           <Input label="Enter your SELECT" type="text" size="lg" isClearable onChange={handleSelectChange}/>
-          <Button color="secondary" onPress={fetchFromDb}>Run</Button>
+          <Button color="secondary" onPress={fetchAnyFromDb}>Run</Button>
         </div>
         <div>{/*<InputTable data={result}/>*/}</div>
         <div><pre>{JSON.stringify(result, null, 2)}</pre></div>

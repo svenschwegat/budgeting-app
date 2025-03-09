@@ -1,28 +1,16 @@
 import React, { useState } from 'react';
 import { Button } from '@heroui/react';
+import fetchFromDb from './FetchFromDb';
 
 
 export default function GetCategoriesButton() {
     const [categories, setCategories] = useState({});
-    
+    const [sqlStatement, setSqlStatement] = useState('');
 
     const getCategories = async () => {
-        try {
-            const backendUrl = "http://localhost:8000";
-            const response = await fetch(backendUrl + '/get-categories', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            
-            const data = await response.json();
-            setCategories(data);
-            console.log('categories', data);
-        } catch (error) {
-            console.error("Error getting categories", error);
-        }    
+        setSqlStatement('SELECT * FROM categories');
+        const data = await fetchFromDb(sqlStatement);
+        setCategories(data);
     };
 
     return (
