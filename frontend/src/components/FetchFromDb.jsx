@@ -18,7 +18,7 @@ export default async function fetchFromDb(sqlStatement){
 };
 
 export async function getCategories(){
-  const sqlStatement = 'SELECT id AS key, sub_category AS textValue, sub_category AS label FROM categories';
+  const sqlStatement = 'SELECT id, sub_category AS textValue, sub_category AS label FROM categories';
   const data = await fetchFromDb(sqlStatement);
   return data;
 }

@@ -11,16 +11,18 @@ const columns = [
     { key: "category", label: "Category", editable: true },
 ];
 
-export const CategorySelector = ({categories = [], selectedCategory, onChange}) => {
-    return(
-      <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-        <Select className="max-w-xs" label="Select a category">
-        {categories.map((category) => (
-            <SelectItem key={category.key}>{category.label}</SelectItem>
-        ))}
-        </Select>
-      </div>
-    )
+export const CategorySelector = ({categories, selectedCategory, onChange}) => {
+  console.log('categories', categories, selectedCategory);
+  /* defaultSelectedKeys={[selectedCategory]} in the select todo*/
+  return(
+    <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+      <Select className="max-w-xs" label="Select a category"  > 
+      {categories.map((category) => (
+          <SelectItem key={category.id}>{category.label}</SelectItem>
+      ))}
+      </Select>
+    </div>
+  )
 }
 
 export default function InputTable({ data, categories }) {
@@ -46,8 +48,8 @@ export default function InputTable({ data, categories }) {
                 {columnKey === 'category' ? (
                     <CategorySelector
                     categories = {categories}
-                    selectedCategory = {selectedCategories[item.key]}
-                    onChange={(e) => handleCategoryChange(item.key, e.target.value)}
+                    selectedCategory = {item.category}
+                    onChange={(e) => handleCategoryChange(item.id, e.target.value)}
                     />) : (getKeyValue(item, columnKey))}
                 </TableCell>
             )}
