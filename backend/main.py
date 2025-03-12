@@ -1,7 +1,7 @@
 # start with fastapi dev main.py
 
 import uvicorn
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
@@ -12,26 +12,20 @@ from services.parse_bank_statement_pdf import PdfParser
 from services.select_from_database import DatabaseSelector
 from services.test_py import AddNumbers
 
-class SqlStatement(BaseModel):
-    sqlStatement: str
-
-class Categories(BaseModel):
+class Category(BaseModel):
     id: int
     type: str
     main_category: str
     sub_category: str
-    mapping: str
+    mapping: Optional[str]
 
-class Item(BaseModel):
+class Transaction(BaseModel):
     key: int
     date: str
     name: str
     purpose: str
     amount: float
-    category: str
-
-class Items(BaseModel):
-    items: List[Item]
+    category: int
 
 app = FastAPI()
 
@@ -57,34 +51,24 @@ memory_db = {
 }
 
 @app.post("/fetch-from-db")
-async def fetch_from_db(data: SqlStatement):
+async def fetch_from_db(sqlStatement: str):
     try:
-        print('main', data.sqlStatement)
-        result = db_selector.select_from_table(data.sqlStatement)
+        print('main', sqlStatement)
+        result = db_selector.select_from_table(sqlStatement)
         return result
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Failed to query data")
 
-@app.post("/get-categories", response_model=Categories)
-def get_categories():
-    result = fetch_from_db('SELECT * FROM categories')
-    memory_db["categories"] = result
+@app.get("/categories", response_model=List[Category])
+async def get_categories():
+    result = await fetch_from_db('SELECT * FROM categories')
     return result
 
-@app.get("/get-categories-quick", response_model=Categories)
-def get_categories_quick():
-    return Categories(items=memory_db["categories"])
-
-@app.get("/parse/get-uploaded-items", response_model=Items)
-def get_items():
-    return Items(items=memory_db["uploaded_items"])
-
-@app.post("/parse/parse-pdf")
+@app.post("/parse-pdf")
 async def parse_pdf(file: UploadFile = File(...)):
     try:
         result = pdf_parser.parse_pdf(file)
-        memory_db["uploaded_items"] = result
         return result
     except Exception as e:
         print(e)

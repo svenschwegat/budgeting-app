@@ -12,11 +12,9 @@ const columns = [
 ];
 
 export const CategorySelector = ({categories, selectedCategory, onChange}) => {
-  console.log('categories', categories, selectedCategory);
-  /* defaultSelectedKeys={[selectedCategory]} in the select todo*/
   return(
     <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-      <Select className="max-w-xs" label="Select a category"  > 
+      <Select className="max-w-xs"  aria-label="Selected category" defaultSelectedKeys={[selectedCategory.toString()]}> 
       {categories.map((category) => (
           <SelectItem key={category.id}>{category.label}</SelectItem>
       ))}
@@ -27,7 +25,6 @@ export const CategorySelector = ({categories, selectedCategory, onChange}) => {
 
 export default function InputTable({ data, categories }) {
     const [selectedCategories, setSelectedCategories] = useState({});
-
     const handleCategoryChange = (key, value) => {
         setSelectedCategories((prev) => ({
             ...prev,

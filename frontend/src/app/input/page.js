@@ -1,31 +1,8 @@
-'use client';
-import React, { useEffect, useState } from 'react';
 import ParsePdf from '@/components/ParsePdf';
-import InputTable from '@/components/InputTable';
-import OnLoad from '@/components/OnLoad';
-import { getCategories } from '@/components/FetchFromDb';
 
-export default function Upload({ }) {
-  const [data, setData] = useState([]);
-  const [tableCategories, setTableCategories] = useState([]);
-  
-  useEffect(() => {
-    async function fetchData() {
-      const result = await OnLoad();
-      if (result) {
-        setData(result.items);
-      }
-    }
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    async function fetchCategories() {
-      const categories = await getCategories();
-      setTableCategories(categories);
-    }
-    fetchCategories();
-  }, []);
+export default async function Upload({ }) {
+  const dataFetch = await fetch(`${process.env.BACKEND_URL}/categories`, { cache: 'no-store' });
+  const categories = await dataFetch.json();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,14 +10,10 @@ export default function Upload({ }) {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1>Choose to upload and parse a PDF/CSV file</h1>
         <div style={{ marginBottom: '20px' }}>
-          <ParsePdf />
+          <ParsePdf categories={categories}/>
         </div>
-        {data.length > 0 && (
-          <div style={{ marginBottom: '20px' }}>
-            <InputTable data={data} categories={tableCategories} />
-          </div>)}
         </main>
-        </div>
-        </div>
+      </div>
+    </div>
   );
 }

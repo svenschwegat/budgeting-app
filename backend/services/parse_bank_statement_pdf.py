@@ -127,12 +127,12 @@ class PdfParser:
     def get_category(self, purpose, categories, category_not_found):
         for i in categories:
             if any(keywords.lower() in purpose.lower() for keywords in i['mapping']):
-                category = i['sub_category']
+                category = i['id']
                 break
             else:
-                category = categories[-1]['sub_category']
+                category = categories[-1]['id']
 
-        if category == categories[-1]['sub_category']:
+        if category == categories[-1]['id']:
             category_not_found += 1
 
         return category, category_not_found

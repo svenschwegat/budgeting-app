@@ -1,4 +1,13 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const nextConfig = {
+    output: 'standalone',
+    async rewrites() {
+      return [
+        {
+          source: "/backend/:path*",
+          destination: `${process.env.BACKEND_URL}/:path*`,
+        },
+      ];
+    },
+  };
+  export default nextConfig;

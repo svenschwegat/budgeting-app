@@ -7,8 +7,7 @@ export default function TestApi({}) {
     
     const testFunctionForPython = async () => {
     try {
-      const backendUrl = "http://localhost:8000"; // process.env.BACKEND_URL; // `${process.env.BACKEND_URL}/test`
-      var result = await fetch(backendUrl + '/addNumbers');
+      var result = await fetch('/backend/addNumbers');
       const data = await result.json();
       setResponse(data.result);
     } catch (error) {

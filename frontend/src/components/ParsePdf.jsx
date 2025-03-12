@@ -3,9 +3,16 @@ import React, { useState } from 'react'
 import InputTable from './InputTable';
 import { Input, Button } from '@heroui/react';
 
-export default function ParsePdf({}) {
+export default function ParsePdf({categories}) {
     const [file, setFile] = useState(null);
     const [result, setResult] = useState(null);
+    const dropdownCategories =
+        categories.map(category => ({
+            id: category.id,
+            textValue: category.sub_category,
+            label: category.sub_category
+        }));
+    
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -14,9 +21,8 @@ export default function ParsePdf({}) {
     const handleFileParse = async () => {
         const formData = new FormData();
         formData.append('file', file);
-        const backendUrl = "http://localhost:8000";
         try {
-            const response = await fetch(backendUrl + '/parse/parse-pdf', {
+            const response = await fetch('/backend/parse-pdf', {
                 method: 'POST',
                 body: formData,
             });
@@ -36,7 +42,7 @@ export default function ParsePdf({}) {
                 Parse bank statement PDF
                 </Button>
                 <div style={{ marginBottom: '20px' }}></div>
-                {result && <InputTable data={result} />}
+                {result && <InputTable data={result} categories={dropdownCategories}/>}
             </main>
         </div>
     );

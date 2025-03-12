@@ -1,5 +1,6 @@
 'use client'
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link} from "@heroui/react";
+import { useState, useEffect } from "react";
 
 export const Logo = () => {
   return (
@@ -15,6 +16,12 @@ export const Logo = () => {
 };
 
 export default function CustomNavbar() {
+  const [activeItem, setActiveItem] = useState('');
+
+  useEffect(() => {
+    setActiveItem(window.location.pathname);
+  }, []);
+
   return (
     <Navbar isBordered isBlurred={false} maxWidth="lg">
       <NavbarBrand>
@@ -25,17 +32,17 @@ export default function CustomNavbar() {
       </NavbarBrand>
       <div className="flex-grow" />
       <NavbarContent className="sm:flex gap-4" justify="center">
-        <NavbarItem isActive={window.location.pathname === '/dashboard'} >
+        <NavbarItem isActive={activeItem === '/dashboard'} >
           <Link color="foreground" href="/dashboard">
             Dashboard
           </Link>
         </NavbarItem>
-        <NavbarItem isActive={window.location.pathname === '/input'} >
+        <NavbarItem isActive={activeItem === '/input'} >
           <Link color="foreground" href="/input">
             Upload
           </Link>
         </NavbarItem>
-        <NavbarItem isActive={window.location.pathname === '/settings'} >
+        <NavbarItem isActive={activeItem === '/settings'} >
           <Link color="foreground" href="/settings">
             Settings
           </Link>
