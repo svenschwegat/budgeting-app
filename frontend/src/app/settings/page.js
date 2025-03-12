@@ -1,14 +1,12 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import TestApi from '@/components/TestApi';
-import CustomNavbar from '@/components/CustomNavbar';
 import { Button } from '@heroui/react';
 import { getCategories } from '@/components/FetchFromDb';
 
 export default function Settings({ }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <CustomNavbar activePage={'settings'}/>
       <div>
             <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
                 <div style={{ marginBottom: '20px' }}></div>

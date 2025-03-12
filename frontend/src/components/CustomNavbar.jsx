@@ -1,3 +1,4 @@
+'use client'
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link} from "@heroui/react";
 
 export const Logo = () => {
@@ -13,11 +14,7 @@ export const Logo = () => {
   );
 };
 
-export default function CustomNavbar({activePage}) {
-  const setIsActive = (page) => {
-    return activePage === page;
-  };
-  
+export default function CustomNavbar() {
   return (
     <Navbar isBordered isBlurred={false} maxWidth="lg">
       <NavbarBrand>
@@ -28,17 +25,17 @@ export default function CustomNavbar({activePage}) {
       </NavbarBrand>
       <div className="flex-grow" />
       <NavbarContent className="sm:flex gap-4" justify="center">
-        <NavbarItem isActive={setIsActive('dashboard')}>
+        <NavbarItem isActive={window.location.pathname === '/dashboard'} >
           <Link color="foreground" href="/dashboard">
             Dashboard
           </Link>
         </NavbarItem>
-        <NavbarItem isActive={setIsActive('input')}>
+        <NavbarItem isActive={window.location.pathname === '/input'} >
           <Link color="foreground" href="/input">
             Upload
           </Link>
         </NavbarItem>
-        <NavbarItem isActive={setIsActive('settings')}>
+        <NavbarItem isActive={window.location.pathname === '/settings'} >
           <Link color="foreground" href="/settings">
             Settings
           </Link>
