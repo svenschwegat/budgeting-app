@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from services.parse_bank_statement_pdf import PdfParser
+from services.parse_bank_statement_csv import CsvParser
 from services.select_from_database import DatabaseSelector
 from services.import_json_to_sqlite import SqliteImporter
 from services.test_py import AddNumbers
@@ -33,6 +34,7 @@ app = FastAPI()
 
 add_numbers = AddNumbers(10)
 pdf_parser = PdfParser()
+csv_parser = CsvParser()
 db_selector = DatabaseSelector()
 db_writer = SqliteImporter()
 
@@ -77,6 +79,16 @@ async def get_categories():
     result = await fetch_from_db('SELECT * FROM categories')
     return result
 
+@app.post("/parse-csv")
+async def parse_csv(file: UploadFile = File(...)):
+    try:
+        categories = await get_categories()
+        result = csv_parser.parse_csv(file, categories)
+        return result
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to query data")
+    
 @app.post("/parse-pdf")
 async def parse_pdf(file: UploadFile = File(...)):
     try:

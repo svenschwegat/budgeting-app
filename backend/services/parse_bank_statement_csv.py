@@ -1,73 +1,49 @@
 from datetime import datetime
-import json
 import re
+import os
+import csv
 
 class CsvParser:
     def __init__(self):
-        config = self.get_config()
-        categories = self.get_categories(config)
-        year_month_input = input('What year and month (YY-MM):')
+        print('Csv Parser initialized')
+    
+    def parse_csv(self, file, categories):
+        rows = self.get_rows_from_csv(file)
+        json_list = self.extract_data(rows, categories)
+        self.delete_temp_file(file)
+        return json_list
 
-        input_file_path = self.get_input_file_path(config)
-        json_list = self.parse_csv(self, config, categories, year_month_input, input_file_path)
-        self.write_to_file(config, year_month_input, json_list)
+    def get_rows_from_csv(self, file):
+        contents = file.file.read()
+        with open(file.filename, 'wb') as file_object:
+            file_object.write(contents)
 
-    def get_config():
-        # config.json contains file paths and key words, see config_template
-        with open('config.json', 'r', encoding = 'utf-8') as file:
-            config = json.load(file)
+        with open(file.filename, 'r', encoding='utf-8') as file_object:
+            csv_reader = csv.reader(file_object, delimiter=';')
+            rows = list(csv_reader)
 
-        return config
+        return rows
 
-    def get_categories(config):
-        # categories.json contains mapping of keywords to categories, see categories_template
-        categories_file_path = config[0]['categories']['file_path'] + '\\' + config[0]['categories']['file_name']
-        
-        with open(categories_file_path, 'r', encoding = 'utf-8') as file:
-            categories = json.load(file)
-        
-        return categories
-
-    def get_input_file_path(config):
-        input_file_name = config[0]['input_csv']['file_name']
-        input_file_path = config[0]['input_csv']['file_path'] + '\\' + input_file_name
-        
-        return input_file_path
-
-    def parse_csv(self, config, categories, year_month_input, input_file_path):
-        input_pattern = r'(\d{2})-(\d{2})'
-        match_input = re.match(input_pattern, year_month_input)
-        requested_year = match_input.group(1)
-        requested_month = match_input.group(2)
-
-        with open(input_file_path, 'r', encoding = 'utf-8') as file:
-            lines = file.readlines()
-
-        delimiter = config[1]['csv']['delimiter']
+    def extract_data(self, rows, categories):
         json_list = []
         category_not_found = 0
+        key = 0
         date_pattern = r'^\d{2}\.(\d{2})\.(\d{2})'
-        avoid_key_word = config[1]['csv']['avoid_key_word']
 
-        for line in lines:
-            item = line.split(delimiter)
-            date = item[0].replace('"', '')
+        for row in rows:
+            if len(row) == 0:
+                continue
+
+            date = row[0].replace('"', '')
             found_date = re.search(date_pattern, date)  
             match_date = re.match(date_pattern, date)
             if found_date == None and match_date == None:
                 continue
-            match_date_year = match_date.group(2)
-            match_date_month = match_date.group(1)
 
-            if found_date and len(item) == 12 \
-            and requested_year == match_date_year \
-            and requested_month == match_date_month:
-                name = item[4].strip().replace('"', '')
-                purpose = item[5].strip().replace('"', '')
-                amount = float(item[8].replace('.', '').replace(',', '.').replace('"', ''))
-
-                if avoid_key_word in purpose:
-                    continue
+            if found_date and len(row) == 12:
+                name = row[4].strip().replace('"', '')
+                purpose = row[5].strip().replace('"', '')
+                amount = float(row[8].replace('.', '').replace(',', '.').replace('"', ''))
 
                 # Extract date
                 date_match = re.search(date_pattern, date)
@@ -76,17 +52,19 @@ class CsvParser:
                     date = datetime.strptime(raw_date, '%d.%m.%y').strftime('%Y-%m-%d')
                 else:
                     date = None
-                    print('Date not found @ ' + item)
+                    print('Date not found @ ' + row)
 
-                category, category_not_found = self.get_category(categories, category_not_found, name, purpose, amount)
-
+                category, category_not_found = self.get_category(categories, category_not_found, name, purpose)
+                key += 1
                 json_item = {
-                        "date": date,
-                        "name": name,
-                        "purpose": purpose,
-                        "amount": amount,
-                        "category": category
-                    }
+                    "key": key,
+                    "date": date,
+                    "name": name,
+                    "purpose": purpose,
+                    "amount": amount,
+                    "category": category,
+                    "isAllowed": True
+                }
                 json_list.append(json_item)
 
         if category_not_found > 0:
@@ -95,30 +73,27 @@ class CsvParser:
             print('All categories found for', len(json_list), 'items')
         return json_list
 
-    def get_category(categories, category_not_found, name, purpose, amount):
-        for i in categories:
-            if any(keywords.lower() in purpose.lower() for keywords in i['mapping']):
-                category = i['sub_category']
+    def get_category(self, categories, category_not_found, name, purpose):
+        for category in categories:
+            if category['mapping'] != None:
+                mappings = category['mapping'].split(';')
+            else:
+                mappings = []
+
+            if any(mapping.strip().lower() in purpose.lower() for mapping in mappings):
+                category = category['id']
                 break
-            elif any(keywords.lower() in name.lower() for keywords in i['mapping']):
-                category = i['sub_category']
-                break
-            elif amount >= 0:
-                category = categories[3]['sub_category']
+            elif any(mapping.strip().lower() in name.lower() for mapping in mappings):
+                category = category['id']
                 break
             else:
-                category = categories[-1]['sub_category']
+                category = categories[-1]['id']
 
-        if category == categories[-1]['sub_category']:
+        if category == categories[-1]['id']:
             category_not_found += 1
             
         return category, category_not_found
 
-    def write_to_file(config, year_month_input, json_list):
-        csv_key_word = config[1]['csv']['key_word']
-        output_file_name = '20' + year_month_input + '-output-' + csv_key_word + '.json'
-        output_file_path = config[0]['output']['file_path'] + '\\' + output_file_name
-        with open(output_file_path, 'w') as file:
-            json.dump(json_list, file, indent = 4)
-
-        print('Output file created @', output_file_path)
+    def delete_temp_file(self, file):
+        os.remove(file.filename)
+        print('Temp file deleted')

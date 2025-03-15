@@ -1,4 +1,4 @@
-import ParsePdf from '@/components/ParsePdf';
+import ParseFile from "@/components/ParseFile";
 
 export default async function Upload({ }) {
   const dataFetch = await fetch(`${process.env.BACKEND_URL}/categories`, { cache: 'no-store' });
@@ -10,7 +10,7 @@ export default async function Upload({ }) {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1>Choose to upload and parse a PDF/CSV file</h1>
         <div style={{ marginBottom: '20px' }}>
-          <ParsePdf categories={categories}/>
+          <ParseFile categories={categories}/>
         </div>
         </main>
       </div>
