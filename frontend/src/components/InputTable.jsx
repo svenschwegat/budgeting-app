@@ -31,7 +31,7 @@ const CategorySelector = ({ categories, selectedCategory, onChange }) => (
 
 const ActionButtons = () => (
   <div className='flex items-center justify-center h-full'>
-    <Tooltip color="danger" content="Delete transaction">
+    <Tooltip color="danger" content="Remove transaction">
       <span className="text-lg text-danger cursor-pointer active:opacity-50">
         <DeleteIcon />
       </span>
@@ -58,9 +58,9 @@ export default function InputTable({ transactions, categories, setChangedTransac
           <CategorySelector
             categories={categories}
             selectedCategory={item.category}
-            onChange={(changedTransaction) => {
+            onChange={(changedCategory) => {
               const changedTransactions = transactions.map((row) =>
-                row.key === item.key ? { ...row, category: changedTransaction } : row
+                row.key === item.key ? { ...row, category: parseInt(changedCategory) } : row
               );
               handleCategoryChange(changedTransactions);
             }}

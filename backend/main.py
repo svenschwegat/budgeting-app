@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 
 from services.parse_bank_statement_pdf import PdfParser
 from services.select_from_database import DatabaseSelector
+from services.import_json_to_sqlite import SqliteImporter
 from services.test_py import AddNumbers
 
 class Category(BaseModel):
@@ -32,6 +33,7 @@ app = FastAPI()
 add_numbers = AddNumbers(10)
 pdf_parser = PdfParser()
 db_selector = DatabaseSelector()
+db_writer = SqliteImporter()
 
 origins = [
     "http://localhost:3000"
@@ -49,6 +51,15 @@ memory_db = {
     "uploaded_items": [],
     "categories": []
 }
+
+@app.post("/transactions")
+async def post_transactions(transactions: List[Transaction]):
+    try:
+        result = db_writer.write_to_db(transactions)
+        return result
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to write to database")
 
 @app.post("/fetch-from-db")
 async def fetch_from_db(sqlStatement: str):
