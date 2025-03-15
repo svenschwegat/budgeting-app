@@ -112,7 +112,8 @@ class PdfParser:
                         'name': name,
                         'purpose': purpose,
                         'amount': amount,
-                        'category': category
+                        'category': category,
+                        'isAllowed': True
                     }
                     json_list.append(json_item)
                 else:

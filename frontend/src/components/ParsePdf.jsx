@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import InputTable from './InputTable';
-import { Input, Button, Card, CardBody } from '@heroui/react';
+import { Input, Button } from '@heroui/react';
 import WriteToDb from './WriteToDb';
 
 export default function ParsePdf({categories}) {
@@ -78,7 +78,7 @@ export default function ParsePdf({categories}) {
                 <InputTable 
                     transactions={transactions} 
                     categories={dropdownCategories}
-                    setChangedTransactions={setTransactions}
+                    setTransactions={setTransactions}
                 />}
             </main>
         </div>

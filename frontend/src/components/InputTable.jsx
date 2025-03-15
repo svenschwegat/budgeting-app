@@ -1,8 +1,8 @@
 'use client'
 import React from 'react'
-import { DeleteIcon } from '../../public/DeleteIcon';
-import { Tooltip, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/react";
-import { Select, SelectItem } from '@heroui/react';
+import { EyeIcon } from '../../public/EyeIcon';
+import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/react";
+import { Select, SelectItem, Tooltip, Button } from '@heroui/react';
 
 const columns = [
   { key: "date", label: "Date" },
@@ -13,7 +13,7 @@ const columns = [
   { key: "actions", label: "" }
 ];
 
-const CategorySelector = ({ categories, selectedCategory, onChange }) => (
+const CategorySelector = ({ categories, selectedCategory, onChange, isDisabled }) => (
   <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
     <Select
       className="max-w-xs"
@@ -21,6 +21,7 @@ const CategorySelector = ({ categories, selectedCategory, onChange }) => (
       variant="bordered"
       defaultSelectedKeys={[selectedCategory.toString()]}
       onChange={(e) => onChange(e.target.value)}
+      isDisabled={isDisabled}
     >
       {categories.map((category) => (
         <SelectItem key={category.id}>{category.label}</SelectItem>
@@ -29,19 +30,42 @@ const CategorySelector = ({ categories, selectedCategory, onChange }) => (
   </div>
 );
 
-const ActionButtons = () => (
+const ActionButtons = ({ item, handleRowAllowed }) => (
   <div className='flex items-center justify-center h-full'>
-    <Tooltip color="danger" content="Remove transaction">
-      <span className="text-lg text-danger cursor-pointer active:opacity-50">
-        <DeleteIcon />
-      </span>
+    <Tooltip 
+      color={ item.isAllowed ? 'secondary' : 'danger' } 
+      content={ item.isAllowed ? 'Transaction is allowed' : 'Transaction will not be commited' } 
+    >
+    <Button 
+      isIconOnly 
+      variant='light' 
+      color={ item.isAllowed ? 'secondary' : 'danger' } 
+      onPress={() => handleRowAllowed(item.key)}>
+      <EyeIcon />
+    </Button>
     </Tooltip>
   </div>
 );
 
-export default function InputTable({ transactions, categories, setChangedTransactions }) {
-  const handleCategoryChange = (changedTransactions) => {
-    setChangedTransactions(changedTransactions);
+export default function InputTable({ transactions, categories, setTransactions }) {
+  const handleCategoryChange = (itemKey, changedCategory) => {
+    setTransactions((prevTransactions) =>
+      prevTransactions.map((transaction) =>
+        transaction.key === itemKey
+          ? { ...transaction, category: parseInt(changedCategory) }
+          : transaction
+      )
+    );
+  };
+
+  const handleRowAllowed = (itemKey) => {
+    setTransactions((prevTransactions) =>
+      prevTransactions.map((transaction) =>
+        transaction.key === itemKey
+          ? { ...transaction, isAllowed: !transaction.isAllowed }
+          : transaction
+      )
+    );
   };
 
   const renderCell = React.useCallback((item, columnKey) => {
@@ -52,24 +76,20 @@ export default function InputTable({ transactions, categories, setChangedTransac
         const formattedDate = new Date(cellValue).toLocaleDateString('de-DE', {
           day: '2-digit', month: '2-digit', year: 'numeric'
         });
-        return formattedDate;
+        return item.isAllowed ? formattedDate : <s>{formattedDate}</s>;
       case "category":
         return (
           <CategorySelector
             categories={categories}
             selectedCategory={item.category}
-            onChange={(changedCategory) => {
-              const changedTransactions = transactions.map((row) =>
-                row.key === item.key ? { ...row, category: parseInt(changedCategory) } : row
-              );
-              handleCategoryChange(changedTransactions);
-            }}
+            onChange={(changedCategory) => handleCategoryChange(item.key, changedCategory) }
+            isDisabled={!item.isAllowed}
           />
         );
       case "actions":
-        return <ActionButtons />;
+        return <ActionButtons item={item} handleRowAllowed={handleRowAllowed} />;
       default:
-        return cellValue;
+        return item.isAllowed ? cellValue : <s>{cellValue}</s>;
     }
   }, []);
 

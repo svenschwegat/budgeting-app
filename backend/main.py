@@ -27,6 +27,7 @@ class Transaction(BaseModel):
     purpose: str
     amount: float
     category: int
+    isAllowed: bool
 
 app = FastAPI()
 

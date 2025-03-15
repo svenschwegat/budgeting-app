@@ -24,9 +24,10 @@ class SqliteImporter:
 
         counter = 0
         for row in data:
-            row_tuple = (row.date, row.name, row.purpose, row.amount, row.category)
-            cursor.execute(f"INSERT INTO {table_name} ({column_keys}) VALUES ({value_keys})", row_tuple)
-            counter += 1
+            if row.isAllowed:
+                row_tuple = (row.date, row.name, row.purpose, row.amount, row.category)
+                cursor.execute(f"INSERT INTO {table_name} ({column_keys}) VALUES ({value_keys})", row_tuple)
+                counter += 1
 
         conn.commit()
         conn.close()
