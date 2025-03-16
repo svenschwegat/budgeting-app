@@ -14,6 +14,15 @@ from services.select_from_database import DatabaseSelector
 from services.import_json_to_sqlite import SqliteImporter
 from services.test_py import AddNumbers
 
+class Asset(BaseModel):
+    id: int
+    date: str
+    asset1: Optional[float]
+    asset2: Optional[float]
+    asset3: Optional[float]
+    asset4: Optional[float]
+    asset5: Optional[float]
+
 class Category(BaseModel):
     id: int
     type: str
@@ -50,10 +59,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-memory_db = {
-    "uploaded_items": [],
-    "categories": []
-}
+@app.get("/assets")
+async def get_assets():
+    result = await fetch_from_db('SELECT * FROM assets')
+    return result
 
 @app.post("/transactions")
 async def post_transactions(transactions: List[Transaction]):
