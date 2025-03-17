@@ -46,7 +46,7 @@ export class AssetColumnChart extends PureComponent {
 export default function DashboardFramework({ assets }) {
   return (
     <div style={{ marginTop: '20px' }}>
-      <div className="flex w-full flex-col">
+      <div className="flex w-full flex-col items-center">
         <Tabs aria-label="Options">
           <Tab key="assets" title="Assets">
             <AssetColumnChart assets={assets} />

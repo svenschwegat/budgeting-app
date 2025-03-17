@@ -1,24 +1,43 @@
 'use client'
-import { Button } from '@heroui/react';
+import { addToast, Button } from '@heroui/react';
+
+function showToast(title, description, color) {
+  addToast({
+    title: title,
+    description: description,
+    color: color,
+    timeout: "7000"
+  });
+};
 
 export default function WriteToDb({ transactions }) {
-  const writeToDb = async () => {    
+  let title, description, color;
+
+  const writeToDb = async () => {
     try {
       const response = await fetch('/backend/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify( transactions )
+        body: JSON.stringify(transactions)
       });
 
       const counter = await response.json();
       if (response.ok) {
-        console.log('Inserted Transactions', counter);
+        title = "Success";
+        description = `Successfully inserted ${counter} transactions.`;
+        color = "success";
       } else {
-        console.error('Response not ok', response.status, counter);
+        title = "Failed to insert transactions";
+        description = `Error: ${response.status} ${counter.detail.toString()}`;
+        color = "danger";
       }
     } catch (error) {
-      console.error("Error writing data to DB", error);
+      title = "Failed writing to database";
+      description = `Error: ${error}`;
+      color = "danger";
     }
+
+    showToast(title, description, color);
   };
 
   return (
