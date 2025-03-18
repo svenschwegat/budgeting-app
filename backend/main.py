@@ -12,6 +12,7 @@ from services.parse_bank_statement_pdf import PdfParser
 from services.parse_bank_statement_csv import CsvParser
 from services.select_from_database import DatabaseSelector
 from services.import_json_to_sqlite import SqliteImporter
+from services.custom_queries import DataQuerier
 from services.test_py import AddNumbers
 
 class Asset(BaseModel):
@@ -46,6 +47,7 @@ pdf_parser = PdfParser()
 csv_parser = CsvParser()
 db_selector = DatabaseSelector()
 db_writer = SqliteImporter()
+data_querier = DataQuerier()
 
 origins = [
     "http://localhost:3000"
@@ -73,10 +75,23 @@ async def post_transactions(transactions: List[Transaction]):
         print(e)
         raise HTTPException(status_code=500, detail="Failed to write to database")
 
+@app.get("/transactions-per-month")
+async def get_transactions_per_month(start_date: str = None, end_date: str = None):
+    sql_query = f"\
+        SELECT SUM(tr.amount) AS total_amount, cat.main_category, cat.main_color \
+        FROM transactions tr \
+        JOIN categories cat ON tr.category_id = cat.id \
+        WHERE tr.transaction_date >= '{start_date}' \
+        AND tr.transaction_date <= '{end_date}' \
+        GROUP BY main_category ORDER BY total_amount"
+    raw_data = await fetch_from_db(sql_query)
+    result = data_querier.query_transactions_per_month(raw_data)
+    return result
+
 @app.post("/fetch-from-db")
 async def fetch_from_db(sqlStatement: str):
     try:
-        print('main', sqlStatement)
+        print('main sql Statement', sqlStatement)
         result = db_selector.select_from_table(sqlStatement)
         return result
     except Exception as e:

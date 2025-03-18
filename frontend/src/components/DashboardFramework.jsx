@@ -1,13 +1,16 @@
 'use client'
-import { Tabs, Tab } from '@heroui/react'
-import React, { PureComponent } from 'react';
+import { Tabs, Tab, Select, SelectItem } from '@heroui/react'
+import React, { PureComponent, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import DashboardTransactions from './DashboardTransactions';
 
 export class AssetColumnChart extends PureComponent {
   render() {
-    const { assets } = this.props;
-    const requestedAssets = assets.slice(-13);
-
+    const { assets, referenceMonthId } = this.props;
+    const requestedAssets = assets
+      .filter((asset) => asset.id <= referenceMonthId)
+      .slice(-13);
+    
     return (
       <BarChart
         width={1000}
@@ -20,14 +23,14 @@ export class AssetColumnChart extends PureComponent {
           bottom: 5,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-        <XAxis 
-          dataKey="date" 
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis
+          dataKey="date"
           tickFormatter={tick => {
             const datetime = new Date(tick);
-            const formattedDate = datetime.toLocaleString('de-DE', {month: 'short'}) + ' ' + datetime.getFullYear();
+            const formattedDate = datetime.toLocaleString('de-DE', { month: 'short' }) + ' ' + datetime.getFullYear();
             return formattedDate;
-          }}/>
+          }} />
         <YAxis tickFormatter={tick => {
           return tick.toLocaleString('de-DE');
         }} />
@@ -43,15 +46,47 @@ export class AssetColumnChart extends PureComponent {
   }
 }
 
-export default function DashboardFramework({ assets }) {
+const MonthSelector = ({ assets, handleMonthChange }) => {
+  return (
+    <div className="flex w-full justify-between items-center">
+      <Select
+        className="max-w-xs"
+        aria-label="Selected month"
+        label="Select a month"
+        defaultSelectedKeys={[assets[0].id.toString()]}
+        onChange={handleMonthChange}
+      >
+        {assets.map((asset) => {
+          const datetime = new Date(asset.date);
+          const formattedDate = datetime.toLocaleString('de-DE', { month: 'short' }) + ' ' + datetime.getFullYear();
+          return (
+            <SelectItem key={asset.id}>{formattedDate}</SelectItem>
+          )
+        })}
+      </Select>
+    </div>
+  );
+}
+
+export default function DashboardFramework({ assets, transactionsPerMonth }) {
+  const sortedAssets = [...assets].sort((a, b) => b.id - a.id); // Latest to earliest
+  const [referenceMonthId, setReferenceMonthId] = useState(sortedAssets[0].id);
+
+  const handleMonthChange = (e) => {
+    setReferenceMonthId(e.target.value);
+  }
+
   return (
     <div style={{ marginTop: '20px' }}>
       <div className="flex w-full flex-col items-center">
         <Tabs aria-label="Options">
           <Tab key="assets" title="Assets">
-            <AssetColumnChart assets={assets} />
+            <MonthSelector assets={sortedAssets} handleMonthChange={handleMonthChange} />
+            <AssetColumnChart assets={assets} referenceMonthId={referenceMonthId} />
           </Tab>
           <Tab key="transactions" title="Transactions">
+            <MonthSelector assets={sortedAssets} handleMonthChange={handleMonthChange} />
+            <DashboardTransactions transactionsPerMonth={transactionsPerMonth}/>
           </Tab>
         </Tabs>
       </div>
