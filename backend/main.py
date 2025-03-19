@@ -88,16 +88,6 @@ async def get_transactions_per_month(start_date: str = None, end_date: str = Non
     result = data_querier.query_transactions_per_month(raw_data)
     return result
 
-@app.post("/fetch-from-db")
-async def fetch_from_db(sqlStatement: str):
-    try:
-        print('main sql Statement', sqlStatement)
-        result = db_selector.select_from_table(sqlStatement)
-        return result
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Failed to query data")
-
 @app.get("/categories", response_model=List[Category])
 async def get_categories():
     result = await fetch_from_db('SELECT * FROM categories')
@@ -132,6 +122,13 @@ async def addNumbers():
         print(e)
         raise HTTPException(status_code=500, detail="Failed to query data")
 
+async def fetch_from_db(sqlStatement: str):
+    try:
+        result = db_selector.select_from_table(sqlStatement)
+        return result
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to query data")
 
 # rework
 if(__name__ == "__init__"):

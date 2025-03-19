@@ -8,7 +8,7 @@ class DataQuerier:
         sum_of_expenses = 0
         for row in data:
             if row['total_amount'] < 0:
-                positive_amount = abs(row['total_amount'])
+                positive_amount = round(abs(row['total_amount']), 0)
                 sorted_data.append({
                     'main_category': row['main_category'],
                     'main_color': row['main_color'],
@@ -26,7 +26,7 @@ class DataQuerier:
         sorted_data.append({
             'main_category': 'Frei',
             'main_color': '24b775',
-            'total_amount': free_amount
+            'total_amount': round(free_amount, 0)
         })                
 
         return sorted_data

@@ -68,12 +68,31 @@ const MonthSelector = ({ assets, handleMonthChange }) => {
   );
 }
 
+async function getTransactionsForSelectedMonth(sortedAssets, monthId){
+  const asset = sortedAssets.find((asset) => asset.id === parseInt(monthId, 10));
+
+  const endDate = asset.date;
+  console.log(endDate);
+  const startDate = `${new Date(endDate).getFullYear()}-${(new Date(endDate).getMonth() + 1).toString()
+    .padStart(2, '0')}-01`;
+  const dataFetchTransactionsPerMonth =
+    await fetch(`/backend/transactions-per-month?start_date=${startDate}&end_date=${endDate}`,
+      { cache: 'no-store' }
+    );
+
+  const transactionsPerMonth = await dataFetchTransactionsPerMonth.json();
+  return transactionsPerMonth;
+}
+
 export default function DashboardFramework({ assets, transactionsPerMonth }) {
   const sortedAssets = [...assets].sort((a, b) => b.id - a.id); // Latest to earliest
   const [referenceMonthId, setReferenceMonthId] = useState(sortedAssets[0].id);
+  const [transactionsPerMonthState, setTransactionsPerMonthState] = useState(transactionsPerMonth);
 
-  const handleMonthChange = (e) => {
+  const handleMonthChange = async (e) => {
     setReferenceMonthId(e.target.value);
+    const newTransactionsPerMonth = await getTransactionsForSelectedMonth(sortedAssets, e.target.value);
+    setTransactionsPerMonthState(newTransactionsPerMonth);
   }
 
   return (
@@ -81,12 +100,23 @@ export default function DashboardFramework({ assets, transactionsPerMonth }) {
       <div className="flex w-full flex-col items-center">
         <Tabs aria-label="Options">
           <Tab key="assets" title="Assets">
-            <MonthSelector assets={sortedAssets} handleMonthChange={handleMonthChange} />
-            <AssetColumnChart assets={assets} referenceMonthId={referenceMonthId} />
+            <MonthSelector 
+              assets={sortedAssets} 
+              handleMonthChange={handleMonthChange} 
+            />
+            <AssetColumnChart 
+              assets={assets} 
+              referenceMonthId={referenceMonthId} 
+            />
           </Tab>
           <Tab key="transactions" title="Transactions">
-            <MonthSelector assets={sortedAssets} handleMonthChange={handleMonthChange} />
-            <DashboardTransactions transactionsPerMonth={transactionsPerMonth}/>
+            <MonthSelector 
+              assets={sortedAssets} 
+              handleMonthChange={handleMonthChange} 
+            />
+            <DashboardTransactions 
+              transactionsPerMonth={transactionsPerMonthState}
+            />
           </Tab>
         </Tabs>
       </div>
