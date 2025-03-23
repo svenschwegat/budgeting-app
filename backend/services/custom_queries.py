@@ -30,4 +30,20 @@ class DataQuerier:
         })                
 
         return sorted_data
-    
+        
+    def query_transactions_by_category_and_month(self, data):
+        grouped_data = {}
+
+        for row in data:
+            key = (row['year'], row['month'])
+            if key not in grouped_data:
+                date = f"{row['year']}-{row['month']}-01"
+                grouped_data[key] = {
+                    'date': date
+                }
+
+            grouped_data[key][row['main_category']] = round(row['total_amount'], 0)
+
+        sorted_data = list(grouped_data.values())
+
+        return sorted_data

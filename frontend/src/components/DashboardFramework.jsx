@@ -70,29 +70,33 @@ const MonthSelector = ({ assets, handleMonthChange }) => {
 
 async function getTransactionsForSelectedMonth(sortedAssets, monthId){
   const asset = sortedAssets.find((asset) => asset.id === parseInt(monthId, 10));
+  let endDate = sortedAssets[0].date;
+  if(asset){
+    endDate = asset.date;
+  } 
 
-  const endDate = asset.date;
-  console.log(endDate);
   const startDate = `${new Date(endDate).getFullYear()}-${(new Date(endDate).getMonth() + 1).toString()
     .padStart(2, '0')}-01`;
-  const dataFetchTransactionsPerMonth =
-    await fetch(`/backend/transactions-per-month?start_date=${startDate}&end_date=${endDate}`,
+  const dataFetchTransactionsByMonth =
+    await fetch(`/backend/transactions-by-month?start_date=${startDate}&end_date=${endDate}`,
       { cache: 'no-store' }
     );
 
-  const transactionsPerMonth = await dataFetchTransactionsPerMonth.json();
-  return transactionsPerMonth;
+  const transactionsByMonth = await dataFetchTransactionsByMonth.json();
+  return transactionsByMonth;
 }
 
-export default function DashboardFramework({ assets, transactionsPerMonth }) {
+export default function DashboardFramework({ assets, transactionsByMonth, transactionsByCategoryMonth, mainCategories }) {
   const sortedAssets = [...assets].sort((a, b) => b.id - a.id); // Latest to earliest
   const [referenceMonthId, setReferenceMonthId] = useState(sortedAssets[0].id);
-  const [transactionsPerMonthState, setTransactionsPerMonthState] = useState(transactionsPerMonth);
+  const [transactionsByMonthState, setTransactionsByMonthState] = useState(transactionsByMonth);
+  const [transactionsByCategoryMonthState, setTransactionsByCategoryMonthState] = useState(transactionsByCategoryMonth);
 
   const handleMonthChange = async (e) => {
     setReferenceMonthId(e.target.value);
-    const newTransactionsPerMonth = await getTransactionsForSelectedMonth(sortedAssets, e.target.value);
-    setTransactionsPerMonthState(newTransactionsPerMonth);
+
+    const newTransactionsByMonth = await getTransactionsForSelectedMonth(sortedAssets, e.target.value);
+    setTransactionsByMonthState(newTransactionsByMonth);
   }
 
   return (
@@ -114,8 +118,10 @@ export default function DashboardFramework({ assets, transactionsPerMonth }) {
               assets={sortedAssets} 
               handleMonthChange={handleMonthChange} 
             />
-            <DashboardTransactions 
-              transactionsPerMonth={transactionsPerMonthState}
+            <DashboardTransactions
+              transactionsByMonth={transactionsByMonthState}
+              transactionsByCategoryMonth={transactionsByCategoryMonthState}
+              mainCategories={mainCategories}
             />
           </Tab>
         </Tabs>

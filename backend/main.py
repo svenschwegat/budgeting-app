@@ -75,8 +75,8 @@ async def post_transactions(transactions: List[Transaction]):
         print(e)
         raise HTTPException(status_code=500, detail="Failed to write to database")
 
-@app.get("/transactions-per-month")
-async def get_transactions_per_month(start_date: str = None, end_date: str = None):
+@app.get("/transactions-by-month")
+async def get_transactions_by_month(start_date: str = None, end_date: str = None):
     sql_query = f"\
         SELECT SUM(tr.amount) AS total_amount, cat.main_category, cat.main_color \
         FROM transactions tr \
@@ -88,9 +88,29 @@ async def get_transactions_per_month(start_date: str = None, end_date: str = Non
     result = data_querier.query_transactions_per_month(raw_data)
     return result
 
+@app.get("/transactions-by-main-category-and-month")
+async def get_transactions_by_main_category_and_month():
+    sql_query = "\
+        SELECT \
+            strftime('%Y', tr.transaction_date) AS year, \
+            strftime('%m', tr.transaction_date) AS month, \
+            cat.main_category, cat.main_color, SUM(tr.amount) AS total_amount \
+        FROM transactions tr \
+        JOIN categories cat ON tr.category_id = cat.id \
+        GROUP BY year, month, cat.main_category ORDER BY year, month ASC"
+
+    raw_data = await fetch_from_db(sql_query)
+    result = data_querier.query_transactions_by_category_and_month(raw_data)
+    return result
+
 @app.get("/categories", response_model=List[Category])
 async def get_categories():
     result = await fetch_from_db('SELECT * FROM categories')
+    return result
+
+@app.get("/main-categories")
+async def get_main_categories():
+    result = await fetch_from_db('SELECT DISTINCT main_category, main_color FROM categories')
     return result
 
 @app.post("/parse-csv")
