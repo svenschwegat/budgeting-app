@@ -1,6 +1,6 @@
 class DataQuerier:
     def __init__(self):
-        print('data initialized')
+        print('Data Querier initialized')
 
     def query_transactions_per_month(self, data):
         sorted_data = []

@@ -4,16 +4,16 @@ import uvicorn
 from typing import List, Optional
 from pydantic import BaseModel
 
+from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 from services.parse_bank_statement_pdf import PdfParser
 from services.parse_bank_statement_csv import CsvParser
-from services.select_from_database import DatabaseSelector
-from services.import_json_to_sqlite import SqliteImporter
-from services.custom_queries import DataQuerier
-from services.test_py import AddNumbers
+from services.sqlite_service import SqliteService
+from services.data_query_service import DataQuerier
 
 class Asset(BaseModel):
     id: int
@@ -40,13 +40,21 @@ class Transaction(BaseModel):
     category: int
     isAllowed: bool
 
-app = FastAPI()
+load_dotenv(dotenv_path="../env_var/env-compose-backend.env")
 
-add_numbers = AddNumbers(10)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global sqlite_service
+    sqlite_service = SqliteService.from_env_vars()    
+    
+    yield
+    sqlite_service.close_connection()
+    print('Shutting down')
+
+app = FastAPI(lifespan=lifespan)
+
 pdf_parser = PdfParser()
 csv_parser = CsvParser()
-db_selector = DatabaseSelector()
-db_writer = SqliteImporter()
 data_querier = DataQuerier()
 
 origins = [
@@ -69,7 +77,7 @@ async def get_assets():
 @app.post("/transactions")
 async def post_transactions(transactions: List[Transaction]):
     try:
-        result = db_writer.write_to_db(transactions)
+        result = sqlite_service.insert_transactions(transactions)
         return result
     except Exception as e:
         print(e)
@@ -126,25 +134,18 @@ async def parse_csv(file: UploadFile = File(...)):
 @app.post("/parse-pdf")
 async def parse_pdf(file: UploadFile = File(...)):
     try:
-        result = pdf_parser.parse_pdf(file)
+        categories = await get_categories()
+        result = pdf_parser.parse_pdf(file, categories)
         return result
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Failed to query data")
-
-@app.get("/addNumbers")
-async def addNumbers():
-    try:
-        result = add_numbers.add_two_integers(15)
-        print(result)
-        return JSONResponse(content={"result": result})
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Failed to query data")
 
 async def fetch_from_db(sqlStatement: str):
     try:
-        result = db_selector.select_from_table(sqlStatement)
+        print(sqlStatement)
+        result = sqlite_service.select_from_db(sqlStatement)
+        print(result)
         return result
     except Exception as e:
         print(e)
