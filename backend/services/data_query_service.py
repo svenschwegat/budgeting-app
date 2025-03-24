@@ -42,7 +42,7 @@ class DataQuerier:
                     'date': date
                 }
 
-            grouped_data[key][row['main_category']] = round(row['total_amount'], 0)
+            grouped_data[key][row['category']] = round(row['total_amount'], 0)
 
         sorted_data = list(grouped_data.values())
 

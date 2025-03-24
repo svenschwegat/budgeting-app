@@ -102,10 +102,29 @@ async def get_transactions_by_main_category_and_month():
         SELECT \
             strftime('%Y', tr.transaction_date) AS year, \
             strftime('%m', tr.transaction_date) AS month, \
-            cat.main_category, cat.main_color, SUM(tr.amount) AS total_amount \
+            cat.main_category AS category, \
+            SUM(tr.amount) AS total_amount \
         FROM transactions tr \
         JOIN categories cat ON tr.category_id = cat.id \
         GROUP BY year, month, cat.main_category ORDER BY year, month ASC"
+
+    raw_data = await fetch_from_db(sql_query)
+    result = data_querier.query_transactions_by_category_and_month(raw_data)
+    return result
+
+@app.get("/transactions-by-sub-category-and-month")
+async def get_transactions_by_sub_category_and_month():
+    sql_query = "\
+        SELECT \
+            strftime('%Y', tr.transaction_date) AS year, \
+            strftime('%m', tr.transaction_date) AS month, \
+            cat.sub_category AS category, \
+			CAST(tr.category_id AS INT) AS cat_id, \
+            SUM(tr.amount) AS total_amount \
+        FROM transactions tr \
+        JOIN categories cat ON tr.category_id = cat.id \
+        GROUP BY year, month, cat.sub_category \
+        ORDER BY year, month, cat_id ASC"
 
     raw_data = await fetch_from_db(sql_query)
     result = data_querier.query_transactions_by_category_and_month(raw_data)
@@ -119,6 +138,14 @@ async def get_categories():
 @app.get("/main-categories")
 async def get_main_categories():
     result = await fetch_from_db('SELECT DISTINCT main_category, main_color FROM categories')
+    return result
+
+@app.get("/sub-categories")
+async def get_sub_categories():
+    result = await fetch_from_db("\
+        SELECT DISTINCT id, sub_category AS key, sub_category AS label, main_color AS sub_color FROM categories \
+        UNION SELECT 0, 'date', 'Monat', '3da2f4' FROM categories \
+        ORDER BY id ASC")
     return result
 
 @app.post("/parse-csv")
@@ -143,9 +170,7 @@ async def parse_pdf(file: UploadFile = File(...)):
 
 async def fetch_from_db(sqlStatement: str):
     try:
-        print(sqlStatement)
         result = sqlite_service.select_from_db(sqlStatement)
-        print(result)
         return result
     except Exception as e:
         print(e)

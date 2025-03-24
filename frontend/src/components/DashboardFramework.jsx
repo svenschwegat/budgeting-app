@@ -86,7 +86,7 @@ async function getTransactionsForSelectedMonth(sortedAssets, monthId){
   return transactionsByMonth;
 }
 
-export default function DashboardFramework({ assets, transactionsByMonth, transactionsByCategoryMonth, mainCategories }) {
+export default function DashboardFramework({ assets, transactionsByMonth, transactionsByCategoryMonth, transactionsBySubCategoryMonth, mainCategories, subCategories }) {
   const sortedAssets = [...assets].sort((a, b) => b.id - a.id); // Latest to earliest
   const [referenceMonthId, setReferenceMonthId] = useState(sortedAssets[0].id);
   const [transactionsByMonthState, setTransactionsByMonthState] = useState(transactionsByMonth);
@@ -121,7 +121,9 @@ export default function DashboardFramework({ assets, transactionsByMonth, transa
             <DashboardTransactions
               transactionsByMonth={transactionsByMonthState}
               transactionsByCategoryMonth={transactionsByCategoryMonthState}
+              transactionsBySubCategoryMonth={transactionsBySubCategoryMonth}
               mainCategories={mainCategories}
+              subCategories={subCategories}
             />
           </Tab>
         </Tabs>

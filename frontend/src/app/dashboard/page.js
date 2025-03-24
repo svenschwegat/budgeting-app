@@ -39,11 +39,25 @@ async function getMainCategories(){
   return mainCategories;
 }
 
+async function getSubCategories(){
+  const data = await fetch(`${process.env.BACKEND_URL}/sub-categories`, { cache: 'no-store' });
+  const subCategories = await data.json();
+  return subCategories;
+}
+
+async function getTransactionsBySubCategoryMonth(){
+  const data = await fetch(`${process.env.BACKEND_URL}/transactions-by-sub-category-and-month`, { cache: 'no-store' });
+  const transactionsBySubCategoryMonth = await data.json();
+  return transactionsBySubCategoryMonth;
+}
+
 export default async function Dashboard() {
   var assets = await getAssets();
   var transactionsByMonth = await getTransactionsByMonth();
   var transactionsByCategoryMonth = await getTransactionsByCategoryMonth();
   var mainCategories = await getMainCategories();
+  var subCategories = await getSubCategories();
+  var transactionsBySubCategoryMonth = await getTransactionsBySubCategoryMonth();
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -51,8 +65,10 @@ export default async function Dashboard() {
         <DashboardFramework 
           assets={assets} 
           transactionsByMonth={transactionsByMonth}
-          transactionsByCategoryMonth={transactionsByCategoryMonth} 
+          transactionsByCategoryMonth={transactionsByCategoryMonth}
+          transactionsBySubCategoryMonth={transactionsBySubCategoryMonth}
           mainCategories={mainCategories}
+          subCategories={subCategories}
         />
       </main>
     </div>

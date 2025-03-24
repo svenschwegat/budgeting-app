@@ -2,6 +2,7 @@
 import React, { PureComponent } from 'react'
 import { PieChart, Pie, Cell } from 'recharts';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
+import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Pagination } from "@heroui/react";
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, transactionsByMonth }) => {
@@ -33,8 +34,8 @@ class TransactionCircleChart extends PureComponent {
     render() {
         const { transactionsByMonth } = this.props;
         return (
-            <PieChart 
-                width={800} 
+            <PieChart
+                width={800}
                 height={500}
             >
                 <Pie
@@ -107,7 +108,80 @@ export class BarChartByMainCategoryAndMonth extends PureComponent {
     }
 }
 
-export default function DashboardTransactions({ transactionsByMonth, transactionsByCategoryMonth, mainCategories }) {
+
+
+export function TransactionTable({ transactions, subCategories }) {
+    const [page, setPage] = React.useState(1);
+    const rowsPerPage = 12;
+    const pages = Math.ceil(transactions.length / rowsPerPage);
+
+    const items = React.useMemo(() => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        return transactions.slice(start, end);
+    }, [page, transactions]);
+
+    const renderCell = React.useCallback((item, columnKey) => {
+        const cellValue = item[columnKey];
+
+        switch (columnKey) {
+            case "date":
+                const datetime = new Date(cellValue);
+                const formattedDate = datetime.toLocaleString('de-DE', { month: 'short' }) + ' ' + datetime.getFullYear();
+                return formattedDate;
+            default:
+                return cellValue;
+        }
+    }, []);
+
+    return (
+            <Table
+                isStriped
+                style={{ tableLayout: 'fixed' }}
+                bottomContent={
+                    <div className="flex w-full justify-center">
+                        <Pagination
+                            isCompact
+                            showControls
+                            showShadow
+                            color="secondary"
+                            page={page}
+                            total={pages}
+                            onChange={(page) => setPage(page)}
+                        />
+                    </div>
+                }
+                aria-label="Transaction table"
+            >
+                <TableHeader columns={subCategories}>
+                    {(column) => (
+                        <TableColumn 
+                            key={column.key}
+                            style={column.key === 'date' ? 
+                                { position: 'sticky', left: 0, zIndex: 1 } : {}}
+                        >
+                            {column.label}
+                        </TableColumn>)}
+                </TableHeader>
+                <TableBody items={items}>
+                    {(item) => (
+                        <TableRow key={item.date}>
+                            {(columnKey) => (
+                                <TableCell
+                                    style={columnKey === 'date' ? { position: 'sticky', left: 0, zIndex: 1 } : {}}
+                                >{renderCell(item, columnKey)}</TableCell>)}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+    )
+}
+
+export default function DashboardTransactions({
+    transactionsByMonth, transactionsByCategoryMonth, transactionsBySubCategoryMonth,
+    mainCategories, subCategories
+}) {
     return (
         <div style={{ marginTop: '20px' }}>
             <div className="flex w-full justify-center items-start gap-8">
@@ -117,6 +191,12 @@ export default function DashboardTransactions({ transactionsByMonth, transaction
                 />
                 <TransactionCircleChart
                     transactionsByMonth={transactionsByMonth}
+                />
+            </div>
+            <div className='flex w-full items-start gap-8'>
+                <TransactionTable
+                    transactions={transactionsBySubCategoryMonth}
+                    subCategories={subCategories}
                 />
             </div>
         </div>
