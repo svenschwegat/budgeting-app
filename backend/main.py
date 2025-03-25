@@ -142,10 +142,12 @@ async def get_main_categories():
 
 @app.get("/sub-categories")
 async def get_sub_categories():
-    result = await fetch_from_db("\
-        SELECT DISTINCT id, sub_category AS key, sub_category AS label, main_color AS sub_color FROM categories \
-        UNION SELECT 0, 'date', 'Monat', '3da2f4' FROM categories \
-        ORDER BY id ASC")
+    sql_query = "\
+        SELECT DISTINCT id, sub_category AS key, sub_category AS label, main_color AS sub_color, is_visible \
+        FROM categories \
+        UNION SELECT 0, 'date', 'Monat', '3da2f4', 1 FROM categories \
+        ORDER BY id ASC"
+    result = await fetch_from_db(sql_query)
     return result
 
 @app.post("/parse-csv")

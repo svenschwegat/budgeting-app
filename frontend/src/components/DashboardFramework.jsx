@@ -1,50 +1,8 @@
 'use client'
 import { Tabs, Tab, Select, SelectItem } from '@heroui/react'
-import React, { PureComponent, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { useState } from 'react';
 import DashboardTransactions from './DashboardTransactions';
-
-export class AssetColumnChart extends PureComponent {
-  render() {
-    const { assets, referenceMonthId } = this.props;
-    const requestedAssets = assets
-      .filter((asset) => asset.id <= referenceMonthId)
-      .slice(-13);
-    
-    return (
-      <BarChart
-        width={1000}
-        height={500}
-        data={requestedAssets}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis
-          dataKey="date"
-          tickFormatter={tick => {
-            const datetime = new Date(tick);
-            const formattedDate = datetime.toLocaleString('de-DE', { month: 'short' }) + ' ' + datetime.getFullYear();
-            return formattedDate;
-          }} />
-        <YAxis tickFormatter={tick => {
-          return tick.toLocaleString('de-DE');
-        }} />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="asset1" name="Konto" stackId="a" fill="#434be8" />
-        <Bar dataKey="asset2" name="CC" stackId="a" fill="#05ffdd" />
-        <Bar dataKey="asset3" name="Tagesgeld" stackId="a" fill="#e8435e" />
-        <Bar dataKey="asset4" name="Depot" stackId="a" fill="#ffc805" />
-        <Bar dataKey="asset5" name="Crypto" stackId="a" fill="#9b43e8" />
-      </BarChart>
-    );
-  }
-}
+import AssetBarChart from './AssetBarChart';
 
 const MonthSelector = ({ assets, handleMonthChange }) => {
   return (
@@ -68,12 +26,12 @@ const MonthSelector = ({ assets, handleMonthChange }) => {
   );
 }
 
-async function getTransactionsForSelectedMonth(sortedAssets, monthId){
+async function getTransactionsForSelectedMonth(sortedAssets, monthId) {
   const asset = sortedAssets.find((asset) => asset.id === parseInt(monthId, 10));
   let endDate = sortedAssets[0].date;
-  if(asset){
+  if (asset) {
     endDate = asset.date;
-  } 
+  }
 
   const startDate = `${new Date(endDate).getFullYear()}-${(new Date(endDate).getMonth() + 1).toString()
     .padStart(2, '0')}-01`;
@@ -104,19 +62,19 @@ export default function DashboardFramework({ assets, transactionsByMonth, transa
       <div className="flex w-full flex-col items-center">
         <Tabs aria-label="Options">
           <Tab key="assets" title="Assets">
-            <MonthSelector 
-              assets={sortedAssets} 
-              handleMonthChange={handleMonthChange} 
+            <MonthSelector
+              assets={sortedAssets}
+              handleMonthChange={handleMonthChange}
             />
-            <AssetColumnChart 
-              assets={assets} 
-              referenceMonthId={referenceMonthId} 
+            <AssetBarChart
+              assets={assets}
+              referenceMonthId={referenceMonthId}
             />
           </Tab>
           <Tab key="transactions" title="Transactions">
-            <MonthSelector 
-              assets={sortedAssets} 
-              handleMonthChange={handleMonthChange} 
+            <MonthSelector
+              assets={sortedAssets}
+              handleMonthChange={handleMonthChange}
             />
             <DashboardTransactions
               transactionsByMonth={transactionsByMonthState}
