@@ -26,10 +26,11 @@ class Asset(BaseModel):
 
 class Category(BaseModel):
     id: int
-    type: str
+    main_color: str
     main_category: str
     sub_category: str
     mapping: Optional[str]
+    is_visible: int
 
 class Transaction(BaseModel):
     key: int
