@@ -20,7 +20,7 @@ const CategorySelector = ({ categories, selectedCategory, onChange, isDisabled }
       aria-label="Selected category"
       variant="bordered"
       defaultSelectedKey={selectedCategory.toString()}
-      onChange={(e) => onChange(e.target.value)}
+      onSelectionChange={(key) => onChange(key)}
       isDisabled={isDisabled}
     >
       {categories.map((category) => (
@@ -52,7 +52,7 @@ export default function InputTable({ transactions, categories, setTransactions }
     setTransactions((prevTransactions) =>
       prevTransactions.map((transaction) =>
         transaction.key === itemKey
-          ? { ...transaction, category: parseInt(changedCategory) }
+          ? { ...transaction, category: parseInt(changedCategory, 10) }
           : transaction
       )
     );
