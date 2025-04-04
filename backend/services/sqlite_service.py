@@ -42,3 +42,15 @@ class SqliteService:
 
         print(f"Data inserted successfully! Rows inserted: {counter}" )
         return str(counter)
+    
+    def insert_assets(self, data):
+        cursor = self.conn.cursor()
+        print("data", data)
+        column_keys = 'date, asset1, asset2, asset3, asset4, asset5'
+        value_keys = ', '.join(['?' for _ in column_keys.split(',')])
+        data_tuple = (data[0].date, data[0].asset1, data[0].asset2, data[0].asset3, data[0].asset4, data[0].asset5)
+        cursor.execute(f"INSERT INTO assets ({column_keys}) VALUES ({value_keys})", data_tuple)
+
+        self.conn.commit()
+        print("Assets inserted successfully!")
+        return True

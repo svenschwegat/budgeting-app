@@ -16,7 +16,6 @@ from services.sqlite_service import SqliteService
 from services.data_query_service import DataQuerier
 
 class Asset(BaseModel):
-    id: int
     date: str
     asset1: Optional[float]
     asset2: Optional[float]
@@ -75,6 +74,15 @@ async def get_assets():
     result = await fetch_from_db('SELECT * FROM assets')
     return result
 
+@app.put("/assets")
+async def put_assets(assets: List[Asset]):
+    try:
+        result = sqlite_service.insert_assets(assets)
+        return result
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to write to database")
+    
 @app.post("/transactions")
 async def post_transactions(transactions: List[Transaction]):
     try:
