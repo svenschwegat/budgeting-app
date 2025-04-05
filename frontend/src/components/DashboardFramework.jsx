@@ -2,6 +2,7 @@
 import { Tabs, Tab, Select, SelectItem } from '@heroui/react'
 import { useState } from 'react';
 import DashboardTransactions from './DashboardTransactions';
+import AssetKpiCard from './AssetKpiCard';
 import AssetBarChart from './AssetBarChart';
 
 const MonthSelector = ({ assets, handleMonthChange }) => {
@@ -51,41 +52,47 @@ export default function DashboardFramework({ assets, transactionsByMonth, transa
   const [transactionsByCategoryMonthState, setTransactionsByCategoryMonthState] = useState(transactionsByCategoryMonth);
 
   const handleMonthChange = async (e) => {
-    setReferenceMonthId(e.target.value);
+    setReferenceMonthId(parseInt(e.target.value, 10));
 
     const newTransactionsByMonth = await getTransactionsForSelectedMonth(sortedAssets, e.target.value);
     setTransactionsByMonthState(newTransactionsByMonth);
   }
 
   return (
-    <div style={{ marginTop: '20px' }}>
-      <div className="flex w-full flex-col items-center">
-        <Tabs aria-label="Options">
-          <Tab key="assets" title="Assets">
+    <div className="flex w-full flex-col items-center" style={{ marginTop: '20px' }}>
+      <Tabs aria-label="Options">
+        <Tab key="assets" title="Assets">
+          <div className="flex w-full flex-row items-center justify-start gap-4">
             <MonthSelector
               assets={sortedAssets}
               handleMonthChange={handleMonthChange}
             />
-            <AssetBarChart
-              assets={assets}
-              referenceMonthId={referenceMonthId}
-            />
-          </Tab>
-          <Tab key="transactions" title="Transactions">
-            <MonthSelector
-              assets={sortedAssets}
-              handleMonthChange={handleMonthChange}
-            />
-            <DashboardTransactions
-              transactionsByMonth={transactionsByMonthState}
-              transactionsByCategoryMonth={transactionsByCategoryMonthState}
-              transactionsBySubCategoryMonth={transactionsBySubCategoryMonth}
-              mainCategories={mainCategories}
-              subCategories={subCategories}
-            />
-          </Tab>
-        </Tabs>
-      </div>
+            <div className="flex-grow">
+              <AssetKpiCard
+                assets={sortedAssets}
+                referenceMonthId={referenceMonthId}
+              />
+            </div>
+          </div>
+          <AssetBarChart
+            assets={assets}
+            referenceMonthId={referenceMonthId}
+          />
+        </Tab>
+        <Tab key="transactions" title="Transactions">
+          <MonthSelector
+            assets={sortedAssets}
+            handleMonthChange={handleMonthChange}
+          />
+          <DashboardTransactions
+            transactionsByMonth={transactionsByMonthState}
+            transactionsByCategoryMonth={transactionsByCategoryMonthState}
+            transactionsBySubCategoryMonth={transactionsBySubCategoryMonth}
+            mainCategories={mainCategories}
+            subCategories={subCategories}
+          />
+        </Tab>
+      </Tabs>
     </div>
   )
 }

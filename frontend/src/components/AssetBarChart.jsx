@@ -1,5 +1,5 @@
 import { PureComponent } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList } from 'recharts';
 
 export default class AssetBarChart extends PureComponent {
     render() {
@@ -37,7 +37,9 @@ export default class AssetBarChart extends PureComponent {
                 <Bar dataKey="asset2" name="CC" stackId="a" fill="#05ffdd" />
                 <Bar dataKey="asset3" name="Tagesgeld" stackId="a" fill="#e8435e" />
                 <Bar dataKey="asset4" name="Depot" stackId="a" fill="#ffc805" />
-                <Bar dataKey="asset5" name="Crypto" stackId="a" fill="#9b43e8" />
+                <Bar dataKey="asset5" name="Crypto" stackId="a" fill="#9b43e8" >
+                    <LabelList position='top' formatter={(value) => parseInt(value).toLocaleString('de-DE')}></LabelList>
+                </Bar>
             </BarChart>
         );
     }
