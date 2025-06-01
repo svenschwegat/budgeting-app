@@ -159,6 +159,16 @@ async def get_sub_categories():
     result = await fetch_from_db(sql_query)
     return result
 
+@app.put("/categories/{category_id}")
+async def put_category(category_id: int, column: str, value: str):
+    print(f"Updating category {category_id} with data: {column} = {value}")
+    try:
+        result = sqlite_service.update_category(category_id, column, value)
+        return result
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Failed to write to database")
+    
 @app.post("/parse-csv")
 async def parse_csv(file: UploadFile = File(...)):
     try:

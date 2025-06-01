@@ -54,3 +54,12 @@ class SqliteService:
         self.conn.commit()
         print("Assets inserted successfully!")
         return True
+    
+    def update_category(self, category_id, column, value):
+        cursor = self.conn.cursor()
+        
+        cursor.execute(f"UPDATE categories SET {column} = ? WHERE id = ?", (value, category_id))
+        self.conn.commit()
+
+        print(f"Category {category_id} updated successfully with {column} = {value}!")
+        return True
