@@ -5,7 +5,7 @@ import TransactionTable from './TransactionTable';
 
 export default function DashboardTransactions({
     transactionsByMonth, transactionsByCategoryMonth, transactionsBySubCategoryMonth,
-    mainCategories, subCategories
+    mainCategories, subCategories, referenceDate
 }) {
     return (
         <div style={{ marginTop: '20px' }}>
@@ -13,6 +13,7 @@ export default function DashboardTransactions({
                 <TransactionBarChart
                     transactionsByCategoryMonth={transactionsByCategoryMonth}
                     mainCategories={mainCategories}
+                    referenceDate={referenceDate}
                 />
                 <TransactionPieChart
                     transactionsByMonth={transactionsByMonth}

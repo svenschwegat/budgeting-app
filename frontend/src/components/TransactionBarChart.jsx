@@ -3,9 +3,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceL
 
 export default class TransactionBarChart extends PureComponent {
     render() {
-        const { transactionsByCategoryMonth, mainCategories } = this.props;
-        const requestedTransactions = transactionsByCategoryMonth.slice(-13);
-
+        const { transactionsByCategoryMonth, mainCategories, referenceDate } = this.props;
+        const requestedTransactions = transactionsByCategoryMonth
+            .filter((transaction) => transaction.date <= referenceDate)
+            .slice(-13);
+            
         const allBars = mainCategories.map((mainCategory, index) => {
             return (
                 <Bar

@@ -7,7 +7,6 @@ import AssetKpiCard from './AssetKpiCard';
 import AssetBarChart from './AssetBarChart';
 
 const MonthSelector = ({ assets, handleMonthChange }) => {
-  //console.log('monthselector', assets);
   return (
     <div className="flex w-full justify-between items-center">
       <Select
@@ -29,8 +28,8 @@ const MonthSelector = ({ assets, handleMonthChange }) => {
   );
 }
 
-async function getTransactionsForSelectedMonth(sortedAssets, monthId) {
-  const asset = sortedAssets.find((asset) => asset.id === parseInt(monthId, 10));
+async function getTransactionsForSelectedMonth(sortedAssets, referenceDate) {
+  const asset = sortedAssets.find((asset) => asset.date === referenceDate);
   const startDate = asset ? getIsoDateString(asset.date) : getIsoDateString(sortedAssets[0].date);
   const endDate = asset ? getIsoDateString(asset.date, true) : getIsoDateString(sortedAssets[0].date, true);
 
@@ -45,14 +44,11 @@ async function getTransactionsForSelectedMonth(sortedAssets, monthId) {
 
 export default function DashboardFramework({ assets, transactionsByMonth, transactionsByCategoryMonth, transactionsBySubCategoryMonth, mainCategories, subCategories }) {
   const sortedAssets = [...assets].sort((a, b) => b.id - a.id); // Latest to earliest
-  const [referenceMonthId, setReferenceMonthId] = useState(sortedAssets[0].id);
   const [referenceDate, setReferenceDate] = useState(sortedAssets[0].date);
   const [transactionsByMonthState, setTransactionsByMonthState] = useState(transactionsByMonth);
   const [transactionsByCategoryMonthState, setTransactionsByCategoryMonthState] = useState(transactionsByCategoryMonth);
 
   const handleMonthChange = async (e) => {
-    //setReferenceMonthId(parseInt(e.target.value, 10));
-    console.log(e.target.value);
     setReferenceDate(e.target.value);
 
     const newTransactionsByMonth = await getTransactionsForSelectedMonth(sortedAssets, e.target.value);
@@ -91,6 +87,7 @@ export default function DashboardFramework({ assets, transactionsByMonth, transa
             transactionsBySubCategoryMonth={transactionsBySubCategoryMonth}
             mainCategories={mainCategories}
             subCategories={subCategories}
+            referenceDate={referenceDate}
           />
         </Tab>
       </Tabs>

@@ -24,7 +24,6 @@ const TrendCard = ({ title, value, change, changeType, trendChipVariant = "flat"
 };
 
 const calculateAssetSum = ({ assets, referenceDate}) => {
-    console.log(referenceDate);
     const dataLatestMonth = assets.find((asset) => asset.date === referenceDate);
     const firstDayOfPreviousMonth = getPreviousMonthIsoDateString(referenceDate);
     const dataPreviousMonth = assets.find((asset) => asset.date === firstDayOfPreviousMonth);
