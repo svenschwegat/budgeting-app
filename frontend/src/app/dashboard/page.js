@@ -1,4 +1,5 @@
 import DashboardFramework from '@/components/DashboardFramework';
+import { getIsoDateString } from '@/utils/GetIsoDateString';
 
 async function getAssets() {
   const dataFetchAssets = await fetch(`${process.env.BACKEND_URL}/assets`, { cache: 'no-store' });
@@ -7,16 +8,9 @@ async function getAssets() {
 }
 
 async function getTransactionsByMonth() {
-  const date = new Date();
-  const firstDayOfPreviousMonth = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-  const startDate = `${firstDayOfPreviousMonth.getFullYear()}-${(firstDayOfPreviousMonth.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}-01`;
-
-  const lastDayOfPreviousMonth = new Date(date.getFullYear(), date.getMonth(), 0);
-  const endDate = `${lastDayOfPreviousMonth.getFullYear()}-${(lastDayOfPreviousMonth.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}-${lastDayOfPreviousMonth.getDate().toString().padStart(2, '0')}`;
+  const firstDayOfPreviousMonth = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+  const startDate = getIsoDateString(firstDayOfPreviousMonth);
+  const endDate = getIsoDateString(firstDayOfPreviousMonth, true);
 
   const dataFetchTransactionsByMonth =
     await fetch(`${process.env.BACKEND_URL}/transactions-by-month?start_date=${startDate}&end_date=${endDate}`,

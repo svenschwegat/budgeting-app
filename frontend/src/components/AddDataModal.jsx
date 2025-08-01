@@ -13,10 +13,10 @@ function showToast(title, description, color) {
     });
 };
 
-function getLastDayOfPreviousMonth() {
-    const now = new Date();
-    const lastDay = parseDate(new Date(now.getFullYear(), now.getMonth(), 0).toISOString().slice(0, 10))
-    return lastDay;
+function getFirstDayOfPreviousMonth(){
+    const date = new Date();
+    const firstDayOfPreviousMonth = parseDate(new Date(date.getFullYear(), date.getMonth() - 1, 2).toISOString().slice(0, 10));
+    return firstDayOfPreviousMonth;
 };
 
 let title, description, color;
@@ -50,7 +50,7 @@ const commitAssets = async ({ assetDate, assets }) => {
 };
 
 export default function AddDataModal({ categories }) {
-    const [assetDate, setAssetDate] = React.useState(getLastDayOfPreviousMonth());
+    const [assetDate, setAssetDate] = React.useState(getFirstDayOfPreviousMonth());
     const [assets, setAssets] = React.useState({ asset1: null, asset2: null, asset3: null, asset4: null, asset5: null });
     const assetNames = { asset1: "Konto", asset2: "CC", asset3: "Tagesgeld", asset4: "Depot", asset5: "Crypto" };
 

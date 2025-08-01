@@ -1,6 +1,7 @@
 'use client'
 import { Tabs, Tab, Select, SelectItem } from '@heroui/react'
 import { useState } from 'react';
+import { getIsoDateString } from '@/utils/GetIsoDateString';
 import DashboardTransactions from './DashboardTransactions';
 import AssetKpiCard from './AssetKpiCard';
 import AssetBarChart from './AssetBarChart';
@@ -29,13 +30,9 @@ const MonthSelector = ({ assets, handleMonthChange }) => {
 
 async function getTransactionsForSelectedMonth(sortedAssets, monthId) {
   const asset = sortedAssets.find((asset) => asset.id === parseInt(monthId, 10));
-  let endDate = sortedAssets[0].date;
-  if (asset) {
-    endDate = asset.date;
-  }
+  const startDate = asset ? getIsoDateString(asset.date) : getIsoDateString(sortedAssets[0].date);
+  const endDate = asset ? getIsoDateString(asset.date, true) : getIsoDateString(sortedAssets[0].date, true);
 
-  const startDate = `${new Date(endDate).getFullYear()}-${(new Date(endDate).getMonth() + 1).toString()
-    .padStart(2, '0')}-01`;
   const dataFetchTransactionsByMonth =
     await fetch(`/backend/transactions-by-month?start_date=${startDate}&end_date=${endDate}`,
       { cache: 'no-store' }
