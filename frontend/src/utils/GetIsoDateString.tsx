@@ -19,3 +19,16 @@ export function getIsoDateString(date?: Date | string, endOfMonth: boolean = fal
 
     return `${year}-${month}-${day}`;
 }
+
+export function getPreviousMonthIsoDateString(date?: Date | string): string {
+    if(!date){
+        date = new Date();
+    }
+
+    if(typeof date === 'string'){
+        date = new Date(date);
+    }
+
+    const previousMonthDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+    return getIsoDateString(previousMonthDate);
+}

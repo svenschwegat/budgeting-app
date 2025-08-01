@@ -1,5 +1,6 @@
 "use client"
 import { Card, Chip } from "@heroui/react";
+import { getPreviousMonthIsoDateString } from "@/utils/GetIsoDateString";
 
 const TrendCard = ({ title, value, change, changeType, trendChipVariant = "flat" }) => {
     return (
@@ -22,9 +23,11 @@ const TrendCard = ({ title, value, change, changeType, trendChipVariant = "flat"
     );
 };
 
-const calculateAssetSum = ({ assets, referenceMonthId}) => {
-    const dataLatestMonth = assets.find((asset) => asset.id === referenceMonthId);
-    const dataPreviousMonth = assets.find((asset) => asset.id === referenceMonthId - 1);
+const calculateAssetSum = ({ assets, referenceDate}) => {
+    console.log(referenceDate);
+    const dataLatestMonth = assets.find((asset) => asset.date === referenceDate);
+    const firstDayOfPreviousMonth = getPreviousMonthIsoDateString(referenceDate);
+    const dataPreviousMonth = assets.find((asset) => asset.date === firstDayOfPreviousMonth);
     
     const latestMonthSum = Object.keys(dataLatestMonth)
         .filter((key) => key.startsWith('asset'))
@@ -49,8 +52,8 @@ const calculateAssetSum = ({ assets, referenceMonthId}) => {
     return assetsSumData;
 }
 
-export default function AssetKpiCard({ assets, referenceMonthId }) {
-    const data = calculateAssetSum({ assets, referenceMonthId });
+export default function AssetKpiCard({ assets, referenceDate }) {
+    const data = calculateAssetSum({ assets, referenceDate });
 
     return (
         <TrendCard

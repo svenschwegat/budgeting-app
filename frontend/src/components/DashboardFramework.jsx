@@ -7,20 +7,21 @@ import AssetKpiCard from './AssetKpiCard';
 import AssetBarChart from './AssetBarChart';
 
 const MonthSelector = ({ assets, handleMonthChange }) => {
+  //console.log('monthselector', assets);
   return (
     <div className="flex w-full justify-between items-center">
       <Select
         className="max-w-xs"
         aria-label="Selected month"
         label="Select a month"
-        defaultSelectedKeys={[assets[0].id.toString()]}
+        defaultSelectedKeys={[assets[0].date]}
         onChange={handleMonthChange}
       >
         {assets.map((asset) => {
           const datetime = new Date(asset.date);
           const formattedDate = datetime.toLocaleString('de-DE', { month: 'short' }) + ' ' + datetime.getFullYear();
           return (
-            <SelectItem key={asset.id}>{formattedDate}</SelectItem>
+            <SelectItem key={asset.date}>{formattedDate}</SelectItem>
           )
         })}
       </Select>
@@ -45,11 +46,14 @@ async function getTransactionsForSelectedMonth(sortedAssets, monthId) {
 export default function DashboardFramework({ assets, transactionsByMonth, transactionsByCategoryMonth, transactionsBySubCategoryMonth, mainCategories, subCategories }) {
   const sortedAssets = [...assets].sort((a, b) => b.id - a.id); // Latest to earliest
   const [referenceMonthId, setReferenceMonthId] = useState(sortedAssets[0].id);
+  const [referenceDate, setReferenceDate] = useState(sortedAssets[0].date);
   const [transactionsByMonthState, setTransactionsByMonthState] = useState(transactionsByMonth);
   const [transactionsByCategoryMonthState, setTransactionsByCategoryMonthState] = useState(transactionsByCategoryMonth);
 
   const handleMonthChange = async (e) => {
-    setReferenceMonthId(parseInt(e.target.value, 10));
+    //setReferenceMonthId(parseInt(e.target.value, 10));
+    console.log(e.target.value);
+    setReferenceDate(e.target.value);
 
     const newTransactionsByMonth = await getTransactionsForSelectedMonth(sortedAssets, e.target.value);
     setTransactionsByMonthState(newTransactionsByMonth);
@@ -67,13 +71,13 @@ export default function DashboardFramework({ assets, transactionsByMonth, transa
             <div className="flex-grow">
               <AssetKpiCard
                 assets={sortedAssets}
-                referenceMonthId={referenceMonthId}
+                referenceDate={referenceDate}
               />
             </div>
           </div>
           <AssetBarChart
             assets={assets}
-            referenceMonthId={referenceMonthId}
+            referenceDate={referenceDate}
           />
         </Tab>
         <Tab key="transactions" title="Transactions">

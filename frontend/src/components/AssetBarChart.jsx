@@ -3,9 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList 
 
 export default class AssetBarChart extends PureComponent {
     render() {
-        const { assets, referenceMonthId } = this.props;
+        const { assets, referenceDate } = this.props;
         const requestedAssets = assets
-            .filter((asset) => asset.id <= referenceMonthId)
+            .filter((asset) => asset.date <= referenceDate)
             .slice(-13);
 
         return (
