@@ -77,10 +77,12 @@ export default function DashboardFramework({ assets, transactionsByMonth, transa
           />
         </Tab>
         <Tab key="transactions" title="Transactions">
-          <MonthSelector
-            assets={sortedAssets}
-            handleMonthChange={handleMonthChange}
-          />
+          <div id="TransactionMonthSelector" className="p-4">
+            <MonthSelector
+              assets={sortedAssets}
+              handleMonthChange={handleMonthChange}
+            />
+          </div>
           <DashboardTransactions
             transactionsByMonth={transactionsByMonthState}
             transactionsByCategoryMonth={transactionsByCategoryMonthState}

@@ -37,29 +37,27 @@ export default function TransactionTable({ transactions, subCategories }) {
                     + datetime.getFullYear();
                 return formattedDate;
             default:
-                return cellValue;
+                return isNaN(cellValue) ? '' : parseInt(cellValue, 10).toLocaleString('de-DE');
         }
     }, []);
 
     const topContent = React.useMemo(() => {
         return (
-            <div className="flex flex-col gap-4">
-                <Select
-                    className="max-w-xs"
-                    label="Columns"
-                    placeholder="Select an animal"
-                    disabledKeys={['date']}
-                    selectedKeys={visibleColumns}
-                    selectionMode="multiple"
-                    onSelectionChange={setVisibleColumns}
-                >
-                    {subCategories.map((subCategory) => (
-                        <SelectItem key={subCategory.key} >
-                            {subCategory.label}
-                        </SelectItem>
-                    ))}
-                </Select>
-            </div>
+            <Select
+                className="max-w-xs"
+                label="Columns"
+                placeholder="Select a column"
+                disabledKeys={['date']}
+                selectedKeys={visibleColumns}
+                selectionMode="multiple"
+                onSelectionChange={setVisibleColumns}
+            >
+                {subCategories.map((subCategory) => (
+                    <SelectItem key={subCategory.key} >
+                        {subCategory.label}
+                    </SelectItem>
+                ))}
+            </Select>
         );
     }, [visibleColumns]);
 
@@ -79,34 +77,39 @@ export default function TransactionTable({ transactions, subCategories }) {
     }, [page, pages]);
 
     return (
-        <Table
-            isStriped
-            style={{ tableLayout: 'fixed' }}
-            topContent={topContent}
-            topContentPlacement="outside"
-            bottomContent={bottomContent}
-            aria-label="Transaction table"
-        >
-            <TableHeader columns={headerColumns}>
-                {(column) => (
-                    <TableColumn
-                        key={column.key}
-                        style={column.key === 'date' ?
-                            { position: 'sticky', left: 0, zIndex: 1 } : {}}
-                    >
-                        {column.label}
-                    </TableColumn>)}
-            </TableHeader>
-            <TableBody items={items}>
-                {(item) => (
-                    <TableRow key={item.date}>
-                        {(columnKey) => (
-                            <TableCell
-                                style={columnKey === 'date' ? { position: 'sticky', left: 0, zIndex: 1 } : {}}
-                            >{renderCell(item, columnKey)}</TableCell>)}
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
+        <div className="p-4">
+            <Table
+                isStriped
+                style={{ tableLayout: 'fixed' }}
+                topContent={topContent}
+                topContentPlacement="inside"
+                bottomContent={bottomContent}
+                aria-label="Transaction table"
+            >
+                <TableHeader columns={headerColumns}>
+                    {(column) => (
+                        <TableColumn
+                            key={column.key}
+                            align="start"
+                            style={{ height: "82px" }}
+                        >
+                            <span style={{ transform: 'rotate(-45deg)', display: 'inline-block'}}>
+                                {column.label}
+                            </span>
+                        </TableColumn>)}
+                </TableHeader>
+                <TableBody items={items}>
+                    {(item) => (
+                        <TableRow key={item.date}>
+                            {(columnKey) => (
+                                <TableCell>
+                                    {renderCell(item, columnKey)}
+                                </TableCell>
+                            )}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
     )
 }

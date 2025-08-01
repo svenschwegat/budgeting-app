@@ -9,7 +9,7 @@ export default function DashboardTransactions({
 }) {
     return (
         <div style={{ marginTop: '20px' }}>
-            <div className="flex w-full justify-center items-start gap-8">
+            <div className="flex flex-wrap w-full justify-center items-start gap-8">
                 <TransactionBarChart
                     transactionsByCategoryMonth={transactionsByCategoryMonth}
                     mainCategories={mainCategories}
