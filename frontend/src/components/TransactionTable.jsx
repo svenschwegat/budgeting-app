@@ -91,7 +91,7 @@ export default function TransactionTable({ transactions, subCategories }) {
                         <TableColumn
                             key={column.key}
                             align="start"
-                            style={{ height: "82px" }}
+                            style={{ height: "82px", backgroundColor: `#${column.sub_color}`, color: 'white' }}
                         >
                             <span style={{ transform: 'rotate(-45deg)', display: 'inline-block'}}>
                                 {column.label}
