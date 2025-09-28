@@ -71,10 +71,15 @@ export default function DashboardFramework({ assets, transactionsByMonth, transa
               />
             </div>
           </div>
-          <AssetBarChart
-            assets={assets}
-            referenceDate={referenceDate}
-          />
+          <div
+            id="AssetBarChartContainer"
+            style={{ width: '100vw', height: '40vh' }}
+          >
+            <AssetBarChart
+              assets={assets}
+              referenceDate={referenceDate}
+            />
+          </div>
         </Tab>
         <Tab key="transactions" title="Transactions">
           <div id="TransactionMonthSelector" className="p-4">

@@ -37,6 +37,11 @@ export default function CustomNavbar() {
             Dashboard
           </Link>
         </NavbarItem>
+        <NavbarItem isActive={activeItem === '/dashboard/assets'} >
+          <Link color="foreground" href="/dashboard/assets">
+            📊 Assets
+          </Link>
+        </NavbarItem>
         <NavbarItem isActive={activeItem === '/input'} >
           <Link color="foreground" href="/input">
             Upload
